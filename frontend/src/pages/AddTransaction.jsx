@@ -2,14 +2,15 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
+import { useTransactions } from "../TransactionContext";
 import "../styles/AddTransaction.css";
 
 function AddTransaction() {
   const { isLoggedIn } = useAuth();
+  const { transactions, setTransactions } = useTransactions();
   const navigate = useNavigate();
   const [validated, setValidated] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [transactions, setTransactions] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "date", direction: "desc" });
   const [filterType, setFilterType] = useState("all");
   const [editId, setEditId] = useState(null);
@@ -417,7 +418,7 @@ function AddTransaction() {
                           Edit
                         </button>
                         <button
-                          className="btn btn-outline-danger"
+                          className="btn btn-outline-danger table-btn"
                           onClick={() => handleDelete(transaction.id)}
                           aria-label={`Delete transaction ${transaction.id}`}
                         >
