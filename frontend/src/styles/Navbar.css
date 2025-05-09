@@ -1,14 +1,99 @@
-.logo{
-  font-size: 2rem;
-  font-weight: 900;
-  color: #81c3d7 !important;
+.navbar {
+  background-color: white;
+  border-bottom: 1px solid #F4F9FC;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.nav-link{
-  color: #16425b;
+.navbar-brand.logo {
+  color: #1A3C5A;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
 }
 
-.nav-link:hover{
-  color: #2f6690;
-  text-decoration: underline;
+.navbar-brand.logo:hover {
+  color: #00A3E0;
+}
+
+.nav-link {
+  color: #1A3C5A;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-left: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #00A3E0;
+}
+
+.register-btn,
+.logout-btn {
+  background-color: #00A3E0;
+  color: white;
+  border-radius: 50px;
+  padding: 0.5rem 1.5rem;
+  margin-left: 1.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.register-btn:hover,
+.logout-btn:hover {
+  background-color: #005B99;
+  color: white;
+}
+
+.navbar-setting {
+  font-size: 1.25rem;
+  color: #1A3C5A;
+  margin-left: 1.5rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar-setting:hover {
+  color: #00A3E0;
+  transform: rotate(90deg);
+}
+
+.navbar-toggler {
+  border: none;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='%231A3C5A' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+.navbar-collapse {
+  background-color: white;
+}
+
+.toast {
+  background-color: #F4F9FC;
+  border: 1px solid #00A3E0;
+}
+
+@media (max-width: 991px) {
+  .navbar-collapse {
+    padding: 1rem;
+    border-top: 1px solid #F4F9FC;
+  }
+
+  .nav-link,
+  .register-btn,
+  .logout-btn,
+  .navbar-setting {
+    margin-left: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .register-btn,
+  .logout-btn {
+    padding: 0.4rem 1rem;
+    font-size: 1rem;
+  }
+
+  .navbar-setting {
+    font-size: 1.1rem;
+  }
 }
