@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock, FaGoogle } from "react-icons/fa";
+import { useAuth } from "../AuthContext";
 import "../styles/Login.css";
 
 function Login() {
+  const { setIsLoggedIn } = useAuth();
+  const navigate = useNavigate();
   const [validated, setValidated] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [formData, setFormData] = useState({
@@ -29,13 +32,25 @@ function Login() {
     if (form.checkValidity() === false) {
       event.stopPropagation();
     } else {
+      setIsLoggedIn(true); // Update AuthContext
+      console.log("Login Submitted:", formData);
       setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000); // Hide toast after 3s
+      setTimeout(() => {
+        setShowToast(false);
+        navigate("/dashboard"); // Redirect to dashboard
+        setFormData({ email: "", password: "" }); // Reset form
+      }, 3000);
     }
   };
 
   const handleGoogleSignIn = () => {
-    console.log("Google Sign In clicked"); // Replace with OAuth logic
+    setIsLoggedIn(true); // Simulate Google Sign-In
+    console.log("Google Sign In clicked");
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+      navigate("/dashboard"); // Redirect to dashboard
+    }, 3000);
   };
 
   return (
@@ -72,7 +87,6 @@ function Login() {
             className="needs-validation"
             noValidate
             onSubmit={handleSubmit}
-            validated={validated}
           >
             <div className="mb-3 position-relative">
               <label htmlFor="email" className="form-label login-heading">
@@ -141,7 +155,6 @@ function Login() {
         </motion.div>
       </div>
 
-      {/* Toast Notification */}
       <div
         className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
           showToast ? "show" : ""

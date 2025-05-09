@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.add-transaction-page {
+  background-color: #F4F9FC;
+  min-height: 100vh;
+  padding-top: 0;
+  padding-bottom: 80px;
+  font-family: 'Poppins', sans-serif;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%2300A3E0' fill-opacity='0.2' d='M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,117.3C672,117,768,171,864,181.3C960,192,1056,160,1152,149.3C1248,139,1344,149,1392,154.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: bottom;
+}
+
+.transaction-card,
+.transaction-table-card {
+  background-color: white;
+  border: 1px solid #F4F9FC;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  max-width: 1000px; /* Increased from 800px */
+  margin: 0 auto;
+  padding: 2.5rem; /* Increased from 2rem */
+}
+
+.section-heading {
+  color: #2f6690;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  color: #1A3C5A;
+  font-weight: 500;
+}
+
+.form-control,
+.form-select {
+  border-color: #00A3E0;
+  color: #1A3C5A;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #005B99;
+  box-shadow: 0 0 0 0.2rem rgba(0, 163, 224, 0.25);
+}
+
+.input-group-text {
+  background-color: #F4F9FC;
+  color: #00A3E0;
+  border-color: #00A3E0;
+}
+
+.form-check-input:checked {
+  background-color: #00A3E0;
+  border-color: #00A3E0;
+}
+
+.btn-primary {
+  background-color: #00A3E0;
+  border-color: #00A3E0;
+  color: #F4F9FC;
+  font-weight: 500;
+  border-radius: 50px;
+  padding: 0.75rem 2rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #005B99;
+  border-color: #005B99;
+  color: #F4F9FC;
+  transform: scale(1.05);
+}
+
+.btn-outline-danger {
+  border-color: #DC3545;
+  color: #DC3545;
+  font-weight: 500;
+  border-radius: 50px;
+  padding: 0.75rem 2rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+  background-color: #DC3545;
+  color: #F4F9FC;
+  transform: scale(1.05);
+}
+
+.btn-outline-secondary {
+  border-color: #6C757D;
+  color: #6C757D;
+  font-weight: 500;
+  border-radius: 50px;
+  padding: 0.75rem 2rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6C757D;
+  color: #F4F9FC;
+  transform: scale(1.05);
+}
+
+.btn-outline-warning {
+  border-color: #FFD700;
+  color: #1A3C5A;
+  font-weight: 500;
+  border-radius: 8px; /* Softer corners */
+  padding: 0.5rem 1.2rem; /* Larger padding */
+  font-size: 1rem; /* Larger text */
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-outline-warning:hover {
+  background-color: #FFD700;
+  color: #1A3C5A;
+  transform: scale(1.05);
+}
+
+.btn-outline-danger.table-btn {
+  border-color: #DC3545;
+  color: #DC3545;
+  font-weight: 500;
+  border-radius: 8px; /* Softer corners */
+  padding: 0.5rem 1.2rem; /* Larger padding */
+  font-size: 1rem; /* Larger text */
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-outline-danger.table-btn:hover {
+  background-color: #DC3545;
+  color: #F4F9FC;
+  transform: scale(1.05);
+}
+
+.transaction-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.transaction-table th,
+.transaction-table td {
+  border: 1px solid #00A3E0;
+  padding: 0.75rem;
+  text-align: left;
+  color: #1A3C5A;
+}
+
+.transaction-table th {
+  background-color: #F4F9FC;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.transaction-table th.sortable:hover {
+  background-color: #00A3E0;
+  color: #F4F9FC;
+}
+
+.transaction-table tbody tr:hover {
+  background-color: rgba(0, 163, 224, 0.1);
+}
+
+.transaction-table tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 1rem; /* Increased spacing between buttons */
+  align-items: center;
+}
+
+.toast {
+  background-color: #F4F9FC;
+  border: 1px solid #00A3E0;
+}
+
+@media (max-width: 767px) {
+  .transaction-card,
+  .transaction-table-card {
+    padding: 2rem; /* Increased from 1.5rem */
+  }
+
+  .section-heading {
+    font-size: 1.5rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .btn-primary,
+  .btn-outline-danger,
+  .btn-outline-secondary {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-outline-warning,
+  .btn-outline-danger.table-btn {
+    padding: 0.4rem 1rem; /* Slightly smaller for mobile */
+    font-size: 0.9rem;
+  }
+
+  .transaction-table {
+    font-size: 0.85rem;
+  }
+
+  .transaction-table th,
+  .transaction-table td {
+    padding: 0.5rem;
+  }
+
+  .actions-cell {
+    flex-direction: column; /* Stack buttons vertically on mobile */
+    gap: 0.5rem;
+  }
+}
