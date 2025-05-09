@@ -1,0 +1,14 @@
+.logo{
+  font-size: 2rem;
+  font-weight: 900;
+  color: #81c3d7 !important;
+}
+
+.nav-link{
+  color: #16425b;
+}
+
+.nav-link:hover{
+  color: #2f6690;
+  text-decoration: underline;
+}

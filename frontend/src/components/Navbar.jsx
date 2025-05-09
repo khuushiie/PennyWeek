@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import "../styles/Navbar.css"; 
 
 function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Update this based on your auth logic
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light mb-5" style={{ backgroundColor: '#16425b' }}>
+    <nav className="navbar navbar-expand-lg navbar-light " style={{ backgroundColor: 'white', borderBottom: '1px solid #ccc' }}>
       <div className="container-fluid">
         <Link className="navbar-brand logo" to="/" >
           PennyWeek

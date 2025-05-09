@@ -1,26 +1,5 @@
 body{
   font-family: "Ubuntu Mono", monospace;
 }
-.register{
-  width: 50%;
-  height: 3rem;
-  margin-bottom: 1rem;
-}
 
-.register-heading{
-  color : #2f6690;
-}
 
-.logo{
-  font-size: 2rem;
-  font-weight: 900;
-  color: #81c3d7 !important;
-}
-
-.nav-link{
-  color: white;
-}
-
-.navbar-setting {
-  color: white !important; 
-}
