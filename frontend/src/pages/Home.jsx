@@ -238,7 +238,7 @@ function Home() {
               </div>
             </div>
           </div>
-          <div className="text-center mt-4">
+          <div className="text-center mt-5">
             <Link to="/about" className="btn btn-primary btn-lg">
               Learn More About Us
             </Link>
