@@ -48,13 +48,14 @@ function Login() {
           transition={{ duration: 0.8 }}
         >
           <motion.p
-            className="text-center mb-4 tagline "
+            className="text-center mb-3 tagline"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
             Log In to Manage Your Finances!
           </motion.p>
+          <h2 className="mb-4 text-center">Login</h2>
 
           <button
             className="btn btn-outline-primary w-100 mb-3"
