@@ -1,0 +1,228 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useAuth } from "../AuthContext";
+import { useUser } from "../UserContext";
+import "../styles/PrivacySettings.css";
+
+function PrivacySettings() {
+  const { isLoggedIn } = useAuth();
+  const { user, updateUser } = useUser();
+  const navigate = useNavigate();
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [dataSharing, setDataSharing] = useState(user.preferences.dataSharing);
+  const [twoFactor, setTwoFactor] = useState(user.preferences.twoFactor || false);
+  const [validated, setValidated] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
+
+  // Handle password input
+  const handlePasswordInput = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm({ ...passwordForm, [name]: value });
+  };
+
+  // Handle password form submission
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    setValidated(true);
+
+    if (
+      form.checkValidity() &&
+      passwordForm.newPassword === passwordForm.confirmPassword
+    ) {
+      setToastMessage("Password changed successfully!");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      setPasswordForm({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setValidated(false);
+    }
+  };
+
+  // Handle toggles
+  const handleToggleChange = (e, field) => {
+    const { checked } = e.target;
+    if (field === "dataSharing") {
+      setDataSharing(checked);
+      updateUser({ preferences: { ...user.preferences, dataSharing: checked } });
+      setToastMessage("Privacy settings updated!");
+    } else if (field === "twoFactor") {
+      setTwoFactor(checked);
+      updateUser({ preferences: { ...user.preferences, twoFactor: checked } });
+      setToastMessage("Two-factor authentication updated!");
+    }
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  return (
+    <div className="privacy-settings-page">
+      <div className="container py-5">
+        <motion.div
+          className="settings-card p-5"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <nav aria-label="breadcrumb">
+            <ol className="breadcrumb">
+              <li className="breadcrumb-item">
+                <Link to="/settings">Settings</Link>
+              </li>
+              <li className="breadcrumb-item active" aria-current="page">
+                Privacy & Security
+              </li>
+            </ol>
+          </nav>
+          <h2 className="section-heading mb-5">Privacy & Security</h2>
+          <form
+            className="needs-validation"
+            noValidate
+            onSubmit={handlePasswordSubmit}
+          >
+            <div className="mb-4">
+              <label htmlFor="oldPassword" className="form-label">
+                Old Password
+              </label>
+              <input
+                type="password"
+                className={`form-control modern-input ${
+                  validated && !passwordForm.oldPassword ? "is-invalid" : ""
+                }`}
+                id="oldPassword"
+                name="oldPassword"
+                value={passwordForm.oldPassword}
+                onChange={handlePasswordInput}
+                required
+              />
+              <div className="invalid-feedback">
+                Please enter your old password.
+              </div>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="newPassword" className="form-label">
+                New Password
+              </label>
+              <input
+                type="password"
+                className={`form-control modern-input ${
+                  validated && !passwordForm.newPassword ? "is-invalid" : ""
+                }`}
+                id="newPassword"
+                name="newPassword"
+                value={passwordForm.newPassword}
+                onChange={handlePasswordInput}
+                required
+              />
+              <div className="invalid-feedback">
+                Please enter a new password.
+              </div>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="confirmPassword" className="form-label">
+                Confirm New Password
+              </label>
+              <input
+                type="password"
+                className={`form-control modern-input ${
+                  validated &&
+                  passwordForm.newPassword !== passwordForm.confirmPassword
+                    ? "is-invalid"
+                    : ""
+                }`}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={passwordForm.confirmPassword}
+                onChange={handlePasswordInput}
+                required
+              />
+              <div className="invalid-feedback">
+                Passwords do not match.
+              </div>
+            </div>
+            <div className="text-end">
+              <motion.button
+                type="submit"
+                className="btn btn-primary-modern"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Change Password
+              </motion.button>
+            </div>
+          </form>
+          <hr className="my-5" />
+          <div className="mb-4">
+            <h4 className="privacy-heading">Security Settings</h4>
+            <div className="form-check form-switch mb-3">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="twoFactor"
+                checked={twoFactor}
+                onChange={(e) => handleToggleChange(e, "twoFactor")}
+              />
+              <label className="form-check-label" htmlFor="twoFactor">
+                Enable Two-Factor Authentication
+              </label>
+            </div>
+            <div className="form-check form-switch">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="dataSharing"
+                checked={dataSharing}
+                onChange={(e) => handleToggleChange(e, "dataSharing")}
+              />
+              <label className="form-check-label" htmlFor="dataSharing">
+                Allow data sharing for analytics
+              </label>
+            </div>
+          </div>
+          <div className="text-end">
+            <Link to="/settings" className="btn btn-outline-modern">
+              Back
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+
+      <div
+        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
+          showToast ? "show" : ""
+        }`}
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div className="d-flex">
+          <div className="toast-body">{toastMessage}</div>
+          <button
+            type="button"
+            className="btn-close me-2 m-auto"
+            onClick={() => setShowToast(false)}
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default PrivacySettings;

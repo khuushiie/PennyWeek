@@ -1,152 +1,119 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { FaCog } from "react-icons/fa";
 import { useAuth } from "../AuthContext";
+import { useUser } from "../UserContext";
+import { FaUserCircle } from "react-icons/fa";
 import "../styles/Navbar.css";
 
 function Navbar() {
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
-  const [showToast, setShowToast] = React.useState(false);
+  const { isLoggedIn, logout } = useAuth();
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-      navigate("/login");
-    }, 3000);
-  };
-
-  const navItemVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    logout();
+    navigate("/login");
   };
 
   return (
-    <>
-      <motion.nav
-        className="navbar navbar-expand-lg navbar-light"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="container-fluid">
-          <Link className="navbar-brand logo" to="/">
-            PennyWeek
-          </Link>
-
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-
-          <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul className="navbar-nav">
-              {isLoggedIn && (
-                <motion.li
-                  className="nav-item"
-                  variants={navItemVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
+    <nav className="navbar navbar-expand-lg navbar-light">
+      <div className="container">
+        <Link className="navbar-brand" to="/">
+          PennyWeek
+        </Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ms-auto align-items-center">
+            <li className="nav-item">
+              <Link className="nav-link" to="/about">
+                About Us
+              </Link>
+            </li>
+            {isLoggedIn ? (
+              <>
+                <li className="nav-item">
                   <Link className="nav-link" to="/dashboard">
                     Dashboard
                   </Link>
-                </motion.li>
-              )}
-              <motion.li
-                className="nav-item"
-                variants={navItemVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link className="nav-link" to="/add-transaction">
-                  Add Transaction
-                </Link>
-              </motion.li>
-              <motion.li
-                className="nav-item"
-                variants={navItemVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link className="nav-link" to="/about">
-                  About Us
-                </Link>
-              </motion.li>
-              <motion.li
-                className="nav-item"
-                variants={navItemVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Link
-                  className="nav-link navbar-setting"
-                  to="/settings"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title="Settings"
-                  aria-label="Settings"
-                >
-                  <FaCog />
-                </Link>
-              </motion.li>
-              {isLoggedIn ? (
-                <motion.li
-                  className="nav-item"
-                  variants={navItemVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <button className="nav-link btn btn-link logout-btn" onClick={handleLogout}>
-                    Logout
-                  </button>
-                </motion.li>
-              ) : (
-                <motion.li
-                  className="nav-item"
-                  variants={navItemVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <Link className="nav-link register-btn" to="/register">
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/add-transaction">
+                    Add Transaction
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/settings">
+                    Settings
+                  </Link>
+                </li>
+                <li className="nav-item dropdown">
+                  <a
+                    className="nav-link dropdown-toggle d-flex align-items-center"
+                    href="#"
+                    id="userDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    {user.photo ? (
+                      <img
+                        src={user.photo}
+                        alt="Profile"
+                        className="navbar-profile-photo rounded-circle me-2"
+                      />
+                    ) : (
+                      <FaUserCircle className="navbar-profile-icon me-2" />
+                    )}
+                    {user.name}
+                  </a>
+                  <ul
+                    className="dropdown-menu dropdown-menu-end"
+                    aria-labelledby="userDropdown"
+                  >
+                    <li>
+                      <Link className="dropdown-item" to="/settings">
+                        Profile
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={handleLogout}
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/login">
+                    Login
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/register">
                     Register
                   </Link>
-                </motion.li>
-              )}
-            </ul>
-          </div>
-        </div>
-      </motion.nav>
-
-      <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
-          showToast ? "show" : ""
-        }`}
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        <div className="d-flex">
-          <div className="toast-body">Logged out successfully!</div>
-          <button
-            type="button"
-            className="btn-close me-2 m-auto"
-            onClick={() => setShowToast(false)}
-            aria-label="Close"
-          ></button>
+                </li>
+              </>
+            )}
+          </ul>
         </div>
       </div>
-    </>
+    </nav>
   );
 }
 

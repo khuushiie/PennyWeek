@@ -5,18 +5,28 @@ const UserContext = createContext();
 export function UserProvider({ children }) {
   const [user, setUser] = useState({
     name: "John Doe",
-    email: "john.doe@example.com",
-    photo: null, // Base64 string for profile photo
+    email: "john@example.com",
+    photo: "",
     preferences: {
+      dataSharing: false,
       notifications: true,
+      smsNotifications: false,
+      pushNotifications: false,
+      notificationFrequency: "immediate",
       theme: "light",
       defaultCurrency: "USD",
-      dataSharing: false,
+      twoFactor: false,
     },
   });
 
   const updateUser = (updates) => {
-    setUser((prev) => ({ ...prev, ...updates }));
+    try {
+      setUser((prev) => ({ ...prev, ...updates }));
+      console.log("User updated successfully:", updates);
+    } catch (err) {
+      console.error("Error updating user:", err);
+      throw new Error("Failed to update user data.");
+    }
   };
 
   return (
@@ -27,5 +37,10 @@ export function UserProvider({ children }) {
 }
 
 export function useUser() {
-  return useContext(UserContext);
+  const context = useContext(UserContext);
+  if (!context) {
+    console.error("useUser must be used within a UserProvider");
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
 }
