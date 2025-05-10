@@ -2,22 +2,29 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
-import { useUser } from "../UserContext";
 import "../styles/PreferencesSettings.css";
 
 function PreferencesSettings() {
-  const { isLoggedIn } = useAuth();
-  const { user, updateUser } = useUser();
+  const { isLoggedIn, user, updateUser } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(
-    user?.preferences || {
-      theme: "light",
-      defaultCurrency: "USD",
-      notifications: true,
-    }
-  );
+  const [formData, setFormData] = useState({
+    theme: "light",
+    defaultCurrency: "USD",
+    notifications: true,
+  });
   const [showToast, setShowToast] = useState(false);
   const [error, setError] = useState("");
+
+  // Initialize formData when user is loaded
+  useEffect(() => {
+    if (user?.preferences) {
+      setFormData({
+        theme: user.preferences.theme || "light",
+        defaultCurrency: user.preferences.defaultCurrency || "USD",
+        notifications: user.preferences.notifications ?? true,
+      });
+    }
+  }, [user]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -37,23 +44,23 @@ function PreferencesSettings() {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      updateUser({ preferences: formData });
+      await updateUser({ preferences: formData });
       console.log("Preferences updated successfully");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
       setError("");
     } catch (err) {
       console.error("Update preferences error:", err);
-      setError("Failed to update preferences.");
+      setError(err.message || "Failed to update preferences.");
       setShowToast(true);
     }
   };
 
   if (!user) {
-    console.log("User context is undefined");
+    console.log("User data is undefined");
     return <div>Loading...</div>;
   }
 

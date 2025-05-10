@@ -2,24 +2,36 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
-import { useUser } from "../UserContext";
 import "../styles/NotificationsSettings.css";
 
 function NotificationsSettings() {
-  const { isLoggedIn } = useAuth();
-  const { user, updateUser } = useUser();
+  const { isLoggedIn, user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    emailNotifications: user.preferences.notifications,
-    smsNotifications: user.preferences.smsNotifications,
-    pushNotifications: user.preferences.pushNotifications,
-    notificationFrequency: user.preferences.notificationFrequency,
+    emailNotifications: true,
+    smsNotifications: false,
+    pushNotifications: false,
+    notificationFrequency: "immediate",
   });
   const [showToast, setShowToast] = useState(false);
+  const [error, setError] = useState("");
+
+  // Initialize formData when user is loaded
+  useEffect(() => {
+    if (user?.preferences) {
+      setFormData({
+        emailNotifications: user.preferences.emailNotifications ?? true,
+        smsNotifications: user.preferences.smsNotifications ?? false,
+        pushNotifications: user.preferences.pushNotifications ?? false,
+        notificationFrequency: user.preferences.notificationFrequency || "immediate",
+      });
+    }
+  }, [user]);
 
   // Redirect if not logged in
   useEffect(() => {
     if (!isLoggedIn) {
+      console.log("User not logged in, redirecting to /login");
       navigate("/login");
     }
   }, [isLoggedIn, navigate]);
@@ -27,27 +39,40 @@ function NotificationsSettings() {
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, checked, value, type } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
+    }));
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    updateUser({
-      preferences: {
-        ...user.preferences,
-        notifications: formData.emailNotifications,
-        smsNotifications: formData.smsNotifications,
-        pushNotifications: formData.pushNotifications,
-        notificationFrequency: formData.notificationFrequency,
-      },
-    });
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    try {
+      await updateUser({
+        preferences: {
+          ...user.preferences,
+          emailNotifications: formData.emailNotifications,
+          smsNotifications: formData.smsNotifications,
+          pushNotifications: formData.pushNotifications,
+          notificationFrequency: formData.notificationFrequency,
+        },
+      });
+      console.log("Notifications updated successfully");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      setError("");
+    } catch (err) {
+      console.error("Update notifications error:", err);
+      setError(err.message || "Failed to update notifications.");
+      setShowToast(true);
+    }
   };
+
+  if (!user) {
+    console.log("User data is undefined");
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="notifications-settings-page">
@@ -69,6 +94,11 @@ function NotificationsSettings() {
             </ol>
           </nav>
           <h2 className="section-heading mb-5">Notification Settings</h2>
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <h4 className="notification-heading">Notification Channels</h4>
@@ -161,7 +191,9 @@ function NotificationsSettings() {
         aria-atomic="true"
       >
         <div className="d-flex">
-          <div className="toast-body">Notifications updated successfully!</div>
+          <div className="toast-body">
+            {error ? error : "Notifications updated successfully!"}
+          </div>
           <button
             type="button"
             className="btn-close me-2 m-auto"

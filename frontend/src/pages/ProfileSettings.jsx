@@ -2,21 +2,30 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
-import { useUser } from "../UserContext";
 import "../styles/ProfileSettings.css";
 
 function ProfileSettings() {
-  const { isLoggedIn } = useAuth();
-  const { user, updateUser } = useUser();
+  const { isLoggedIn, user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    photo: user?.photo || "",
+    name: "",
+    email: "",
+    photo: "",
   });
   const [validated, setValidated] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [error, setError] = useState("");
+
+  // Initialize formData when user is loaded
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        photo: user.photo || "",
+      });
+    }
+  }, [user]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -38,6 +47,7 @@ function ProfileSettings() {
     if (!file) {
       console.log("No file selected");
       setError("Please select an image file.");
+      setShowToast(true);
       return;
     }
 
@@ -64,14 +74,14 @@ function ProfileSettings() {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
     setValidated(true);
 
     if (form.checkValidity()) {
       try {
-        updateUser({
+        await updateUser({
           name: formData.name,
           email: formData.email,
           photo: formData.photo,
@@ -83,14 +93,14 @@ function ProfileSettings() {
         setError("");
       } catch (err) {
         console.error("Update user error:", err);
-        setError("Failed to update profile.");
+        setError(err.message || "Failed to update profile.");
         setShowToast(true);
       }
     }
   };
 
   if (!user) {
-    console.log("User context is undefined");
+    console.log("User data is undefined");
     return <div>Loading...</div>;
   }
 
@@ -129,7 +139,7 @@ function ProfileSettings() {
                 <motion.img
                   src={
                     formData.photo ||
-                    "https://via.placeholder.com/150?text=User"
+                    "https://ui-avatars.com/api/?name=User&size=150"
                   }
                   alt="Profile"
                   className="profile-photo rounded-circle mb-3"

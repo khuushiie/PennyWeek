@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
@@ -7,10 +7,11 @@ import "../styles/AddTransaction.css";
 
 function AddTransaction() {
   const { isLoggedIn } = useAuth();
-  const { transactions, setTransactions } = useTransactions();
+  const { transactions, saveTransaction, deleteTransaction, loading, error } = useTransactions();
   const navigate = useNavigate();
   const [validated, setValidated] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "date", direction: "desc" });
   const [filterType, setFilterType] = useState("all");
   const [editId, setEditId] = useState(null);
@@ -24,14 +25,6 @@ function AddTransaction() {
     notes: "",
   });
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-    }
-  }, [isLoggedIn, navigate]);
-
-  // Currency options
   const currencies = [
     { code: "USD", symbol: "$" },
     { code: "EUR", symbol: "€" },
@@ -39,7 +32,6 @@ function AddTransaction() {
     { code: "GBP", symbol: "£" },
   ];
 
-  // Category options
   const categories = [
     "Food",
     "Transport",
@@ -49,47 +41,48 @@ function AddTransaction() {
     "Other",
   ];
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle form submission
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
-
     setValidated(true);
 
     if (form.checkValidity() === false || formData.amount <= 0) {
       event.stopPropagation();
-    } else {
+      return;
+    }
+
+    try {
       const transaction = {
-        id: editId || Date.now(),
-        ...formData,
+        ...(editId ? { _id: editId } : {}),
         amount: parseFloat(formData.amount),
+        category: formData.category,
+        date: formData.date,
+        description: formData.description,
+        type: formData.type,
+        currency: formData.currency,
+        notes: formData.notes,
       };
 
-      if (editId) {
-        setTransactions(
-          transactions.map((t) => (t.id === editId ? transaction : t))
-        );
-        setEditId(null);
-      } else {
-        setTransactions([transaction, ...transactions]);
-      }
-
-      console.log("Transaction Submitted:", transaction);
+      await saveTransaction(transaction);
+      setToastMessage(`Transaction ${editId ? "updated" : "added"} successfully!`);
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
         resetForm();
-      }, 3000);
+        navigate("/dashboard");
+      }, 2000);
+    } catch (err) {
+      setToastMessage(err.message || "Failed to save transaction");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
     }
   };
 
-  // Reset form
   const resetForm = () => {
     setFormData({
       amount: "",
@@ -104,25 +97,38 @@ function AddTransaction() {
     setEditId(null);
   };
 
-  // Edit transaction
   const handleEdit = (transaction) => {
-    setFormData(transaction);
-    setEditId(transaction.id);
+    setFormData({
+      amount: transaction.amount.toString(),
+      category: transaction.category,
+      date: new Date(transaction.date).toISOString().split('T')[0],
+      description: transaction.description || "",
+      type: transaction.type,
+      currency: transaction.currency,
+      notes: transaction.notes || "",
+    });
+    setEditId(transaction._id);
   };
 
-  // Delete transaction
-  const handleDelete = (id) => {
-    setTransactions(transactions.filter((t) => t.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await deleteTransaction(id);
+      setToastMessage("Transaction deleted successfully!");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+    } catch (err) {
+      setToastMessage(err.message || "Failed to delete transaction");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+    }
   };
 
-  // Sort transactions
   const handleSort = (key) => {
     const direction =
       sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
     setSortConfig({ key, direction });
   };
 
-  // Sorted and filtered transactions
   const sortedTransactions = useMemo(() => {
     let filtered = transactions;
     if (filterType !== "all") {
@@ -139,16 +145,18 @@ function AddTransaction() {
     });
   }, [transactions, sortConfig, filterType]);
 
-  // Handle cancel
   const handleCancel = () => {
     resetForm();
     navigate("/dashboard");
   };
 
+  if (!isLoggedIn) return null; // ProtectedRoute handles redirect
+  if (loading) return <div>Loading transactions...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div className="add-transaction-page">
       <div className="container py-5">
-        {/* Form Card */}
         <motion.div
           className="transaction-card p-4 mb-5"
           initial={{ opacity: 0, y: 20 }}
@@ -158,11 +166,7 @@ function AddTransaction() {
           <h2 className="section-heading text-center mb-4">
             {editId ? "Edit Transaction" : "Add New Transaction"}
           </h2>
-          <form
-            className="needs-validation"
-            noValidate
-            onSubmit={handleSubmit}
-          >
+          <form className="needs-validation" noValidate onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="currency" className="form-label">
                 Currency
@@ -181,7 +185,6 @@ function AddTransaction() {
                 ))}
               </select>
             </div>
-
             <div className="mb-3">
               <label htmlFor="amount" className="form-label">
                 Amount
@@ -211,7 +214,6 @@ function AddTransaction() {
                 </div>
               </div>
             </div>
-
             <div className="mb-3">
               <label htmlFor="category" className="form-label">
                 Category
@@ -233,11 +235,8 @@ function AddTransaction() {
                   </option>
                 ))}
               </select>
-              <div className="invalid-feedback">
-                Please select a category.
-              </div>
+              <div className="invalid-feedback">Please select a category.</div>
             </div>
-
             <div className="mb-3">
               <label htmlFor="date" className="form-label">
                 Date
@@ -253,11 +252,8 @@ function AddTransaction() {
                 onChange={handleInputChange}
                 required
               />
-              <div className="invalid-feedback">
-                Please select a date.
-              </div>
+              <div className="invalid-feedback">Please select a date.</div>
             </div>
-
             <div className="mb-3">
               <label htmlFor="description" className="form-label">
                 Description
@@ -272,7 +268,6 @@ function AddTransaction() {
                 placeholder="Optional description"
               />
             </div>
-
             <div className="mb-3">
               <label htmlFor="notes" className="form-label">
                 Notes
@@ -287,7 +282,6 @@ function AddTransaction() {
                 placeholder="Additional notes (optional)"
               />
             </div>
-
             <div className="mb-3">
               <label className="form-label">Type</label>
               <div className="form-check">
@@ -319,7 +313,6 @@ function AddTransaction() {
                 </label>
               </div>
             </div>
-
             <div className="d-flex justify-content-between">
               <button
                 type="button"
@@ -336,15 +329,19 @@ function AddTransaction() {
                 >
                   Reset
                 </button>
-                <button type="submit" className="btn btn-primary">
+                <motion.button
+                  type="submit"
+                  className="btn btn-primary"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   {editId ? "Update Transaction" : "Add Transaction"}
-                </button>
+                </motion.button>
               </div>
             </div>
           </form>
         </motion.div>
 
-        {/* Transaction History Table */}
         {transactions.length > 0 && (
           <motion.div
             className="transaction-table-card p-4"
@@ -352,9 +349,7 @@ function AddTransaction() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="section-heading text-center mb-4">
-              Transaction History
-            </h2>
+            <h2 className="section-heading text-center mb-4">Transaction History</h2>
             <div className="mb-3">
               <label htmlFor="filterType" className="form-label">
                 Filter by Type
@@ -394,12 +389,12 @@ function AddTransaction() {
                 <tbody>
                   {sortedTransactions.map((transaction, index) => (
                     <motion.tr
-                      key={transaction.id}
+                      key={transaction._id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <td>{transaction.date}</td>
+                      <td>{new Date(transaction.date).toLocaleDateString()}</td>
                       <td>
                         {currencies.find((c) => c.code === transaction.currency)
                           ?.symbol}
@@ -413,14 +408,14 @@ function AddTransaction() {
                         <button
                           className="btn btn-outline-warning me-3"
                           onClick={() => handleEdit(transaction)}
-                          aria-label={`Edit transaction ${transaction.id}`}
+                          aria-label={`Edit transaction ${transaction._id}`}
                         >
                           Edit
                         </button>
                         <button
                           className="btn btn-outline-danger table-btn"
-                          onClick={() => handleDelete(transaction.id)}
-                          aria-label={`Delete transaction ${transaction.id}`}
+                          onClick={() => handleDelete(transaction._id)}
+                          aria-label={`Delete transaction ${transaction._id}`}
                         >
                           Delete
                         </button>
@@ -432,27 +427,24 @@ function AddTransaction() {
             </div>
           </motion.div>
         )}
-      </div>
 
-      {/* Toast Notification */}
-      <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
-          showToast ? "show" : ""
-        }`}
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        <div className="d-flex">
-          <div className="toast-body">
-            Transaction {editId ? "updated" : "added"} successfully!
+        <div
+          className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
+            showToast ? "show" : ""
+          }`}
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div className="d-flex">
+            <div className="toast-body">{toastMessage}</div>
+            <button
+              type="button"
+              className="btn-close me-2 m-auto"
+              onClick={() => setShowToast(false)}
+              aria-label="Close"
+            ></button>
           </div>
-          <button
-            type="button"
-            className="btn-close me-2 m-auto"
-            onClick={() => setShowToast(false)}
-            aria-label="Close"
-          ></button>
         </div>
       </div>
     </div>

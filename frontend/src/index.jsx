@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './AuthContext';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import { TransactionProvider } from './TransactionContext';
-import { UserProvider } from './UserContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Dashboard from './pages/Dashboard';
@@ -21,22 +21,51 @@ import AboutUs from './pages/AboutUs';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 
+function ProtectedRoute({ children }) {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? children : <Navigate to="/login" />;
+}
+
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-    <AuthProvider>
-      <UserProvider>
+    <ErrorBoundary>
+      <AuthProvider>
         <TransactionProvider>
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/add-transaction" element={<AddTransaction />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/settings/profile" element={<ProfileSettings />} />
-            <Route path="/settings/privacy" element={<PrivacySettings />} />
-            <Route path="/settings/preferences" element={<PreferencesSettings />} />
-            <Route path="/settings/account" element={<AccountSettings />} />
-            <Route path="/settings/notifications" element={<NotificationsSettings />} />
+            <Route
+              path="/add-transaction"
+              element={<ProtectedRoute><AddTransaction /></ProtectedRoute>}
+            />
+            <Route
+              path="/dashboard"
+              element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
+            />
+            <Route
+              path="/settings"
+              element={<ProtectedRoute><Settings /></ProtectedRoute>}
+            />
+            <Route
+              path="/settings/profile"
+              element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}
+            />
+            <Route
+              path="/settings/privacy"
+              element={<ProtectedRoute><PrivacySettings /></ProtectedRoute>}
+            />
+            <Route
+              path="/settings/preferences"
+              element={<ProtectedRoute><PreferencesSettings /></ProtectedRoute>}
+            />
+            <Route
+              path="/settings/account"
+              element={<ProtectedRoute><AccountSettings /></ProtectedRoute>}
+            />
+            <Route
+              path="/settings/notifications"
+              element={<ProtectedRoute><NotificationsSettings /></ProtectedRoute>}
+            />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -44,7 +73,7 @@ createRoot(document.getElementById('root')).render(
           </Routes>
           <Footer />
         </TransactionProvider>
-      </UserProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   </BrowserRouter>
 );

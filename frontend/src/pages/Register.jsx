@@ -1,22 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUser, FaEnvelope, FaLock, FaGoogle } from "react-icons/fa";
+import axios from "axios";
 import { useAuth } from "../AuthContext";
 import "../styles/Register.css";
 
 function Register() {
   const [validated, setValidated] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [isSignedUp, setIsSignedUp] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const { setIsLoggedIn } = useAuth();
+  const { login } = useAuth(); // Use login from AuthContext
   const navigate = useNavigate();
+
+  // Reset isSignedUp on mount
+  useEffect(() => {
+    setIsSignedUp(false);
+  }, []);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -32,7 +39,7 @@ function Register() {
     return { text: "Strong", width: "100%", color: "#28A745" };
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
 
@@ -40,26 +47,50 @@ function Register() {
 
     if (form.checkValidity() === false) {
       event.stopPropagation();
-    } else {
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setToastMessage("Passwords do not match");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      return;
+    }
+
+    try {
+      const { name, email, password } = formData;
+      console.log("Registering user:", { name, email, password });
+      await axios.post(
+        "http://localhost:5000/api/auth/register",
+        { name, email, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      // Auto-login after registration
+      await login(email, password);
+      setToastMessage("Registration successful!");
       setShowToast(true);
       setIsSignedUp(true);
-      setIsLoggedIn(true);
       setTimeout(() => {
         setShowToast(false);
-        navigate("/");
+        navigate("/dashboard");
       }, 3000);
+    } catch (err) {
+      console.error("Registration error:", err.response?.data, err.message);
+      setToastMessage(err.response?.data.message || "Registration failed");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     }
   };
 
   const handleGoogleSignUp = () => {
     console.log("Google Sign Up clicked");
-    setIsSignedUp(true);
-    setIsLoggedIn(true);
+    setToastMessage("Google Sign Up not implemented yet");
     setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-      navigate("/");
-    }, 3000);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   return (
@@ -110,17 +141,17 @@ function Register() {
                     <input
                       type="text"
                       className={`form-control ${
-                        validated && !formData.username ? "is-invalid" : ""
+                        validated && !formData.name ? "is-invalid" : ""
                       }`}
-                      id="username"
-                      placeholder="Enter username"
-                      value={formData.username}
+                      id="name"
+                      placeholder="Enter name"
+                      value={formData.name}
                       onChange={handleInputChange}
                       required
-                      aria-label="Username"
+                      aria-label="Name"
                     />
                     <div className="invalid-feedback">
-                      Please provide a valid username.
+                      Please provide a valid name.
                     </div>
                   </div>
                 </div>
@@ -211,9 +242,14 @@ function Register() {
                   </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary register w-100">
+                <motion.button
+                  type="submit"
+                  className="btn btn-primary register w-100"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   Register
-                </button>
+                </motion.button>
               </form>
 
               <div className="mt-3 text-center">
@@ -236,7 +272,7 @@ function Register() {
         aria-atomic="true"
       >
         <div className="d-flex">
-          <div className="toast-body">Registration successful!</div>
+          <div className="toast-body">{toastMessage}</div>
           <button
             type="button"
             className="btn-close me-2 m-auto"

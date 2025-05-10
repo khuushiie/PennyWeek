@@ -1,19 +1,27 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
-import { useUser } from "../UserContext";
 import { FaUserCircle } from "react-icons/fa";
 import "../styles/Navbar.css";
 
 function Navbar() {
-  const { isLoggedIn, logout } = useAuth();
-  const { user } = useUser();
+  const { isLoggedIn, user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  // Debug user.photo
+  console.log("Navbar: User data:", { isLoggedIn, user, photo: user?.photo });
+
+  // Construct full photo URL
+  const photoUrl = user?.photo
+    ? user.photo.startsWith('http')
+      ? user.photo
+      : `http://localhost:5000${user.photo}`
+    : null;
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light">
@@ -39,7 +47,7 @@ function Navbar() {
                 About Us
               </Link>
             </li>
-            {isLoggedIn ? (
+            {isLoggedIn && user ? (
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/dashboard">
@@ -65,16 +73,20 @@ function Navbar() {
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                    {user.photo ? (
+                    {photoUrl ? (
                       <img
-                        src={user.photo}
+                        src={photoUrl}
                         alt="Profile"
                         className="navbar-profile-photo rounded-circle me-2"
+                        onError={(e) => {
+                          console.error("Navbar: Failed to load profile photo:", photoUrl);
+                          e.target.style.display = 'none'; // Hide broken image
+                        }}
                       />
                     ) : (
                       <FaUserCircle className="navbar-profile-icon me-2" />
                     )}
-                    {user.name}
+                    {user.name || "User"}
                   </a>
                   <ul
                     className="dropdown-menu dropdown-menu-end"
@@ -86,10 +98,7 @@ function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <button
-                        className="dropdown-item"
-                        onClick={handleLogout}
-                      >
+                      <button className="dropdown-item" onClick={handleLogout}>
                         Logout
                       </button>
                     </li>

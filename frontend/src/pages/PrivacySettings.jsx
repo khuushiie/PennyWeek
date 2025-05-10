@@ -2,27 +2,35 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
-import { useUser } from "../UserContext";
 import "../styles/PrivacySettings.css";
 
 function PrivacySettings() {
-  const { isLoggedIn } = useAuth();
-  const { user, updateUser } = useUser();
+  const { isLoggedIn, user, updateUser, changePassword } = useAuth();
   const navigate = useNavigate();
   const [passwordForm, setPasswordForm] = useState({
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-  const [dataSharing, setDataSharing] = useState(user.preferences.dataSharing);
-  const [twoFactor, setTwoFactor] = useState(user.preferences.twoFactor || false);
+  const [dataSharing, setDataSharing] = useState(false);
+  const [twoFactor, setTwoFactor] = useState(false);
   const [validated, setValidated] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [error, setError] = useState("");
+
+  // Initialize preferences when user is loaded
+  useEffect(() => {
+    if (user?.preferences) {
+      setDataSharing(user.preferences.dataSharing || false);
+      setTwoFactor(user.preferences.twoFactor || false);
+    }
+  }, [user]);
 
   // Redirect if not logged in
   useEffect(() => {
     if (!isLoggedIn) {
+      console.log("User not logged in, redirecting to /login");
       navigate("/login");
     }
   }, [isLoggedIn, navigate]);
@@ -30,11 +38,11 @@ function PrivacySettings() {
   // Handle password input
   const handlePasswordInput = (e) => {
     const { name, value } = e.target;
-    setPasswordForm({ ...passwordForm, [name]: value });
+    setPasswordForm((prev) => ({ ...prev, [name]: value }));
   };
 
   // Handle password form submission
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
     setValidated(true);
@@ -43,33 +51,60 @@ function PrivacySettings() {
       form.checkValidity() &&
       passwordForm.newPassword === passwordForm.confirmPassword
     ) {
-      setToastMessage("Password changed successfully!");
+      try {
+        await changePassword(passwordForm.oldPassword, passwordForm.newPassword);
+        setToastMessage("Password changed successfully!");
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+        setPasswordForm({
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setValidated(false);
+        setError("");
+      } catch (err) {
+        console.error("Password change error:", err);
+        setError(err.message || "Failed to change password.");
+        setShowToast(true);
+      }
+    } else if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setError("Passwords do not match.");
       setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
-      setPasswordForm({
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-      setValidated(false);
     }
   };
 
   // Handle toggles
-  const handleToggleChange = (e, field) => {
+  const handleToggleChange = async (e, field) => {
     const { checked } = e.target;
-    if (field === "dataSharing") {
-      setDataSharing(checked);
-      updateUser({ preferences: { ...user.preferences, dataSharing: checked } });
-      setToastMessage("Privacy settings updated!");
-    } else if (field === "twoFactor") {
-      setTwoFactor(checked);
-      updateUser({ preferences: { ...user.preferences, twoFactor: checked } });
-      setToastMessage("Two-factor authentication updated!");
+    try {
+      if (field === "dataSharing") {
+        setDataSharing(checked);
+        await updateUser({
+          preferences: { ...user.preferences, dataSharing: checked },
+        });
+        setToastMessage("Privacy settings updated!");
+      } else if (field === "twoFactor") {
+        setTwoFactor(checked);
+        await updateUser({
+          preferences: { ...user.preferences, twoFactor: checked },
+        });
+        setToastMessage("Two-factor authentication updated!");
+      }
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      setError("");
+    } catch (err) {
+      console.error("Toggle update error:", err);
+      setError("Failed to update settings.");
+      setShowToast(true);
     }
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
   };
+
+  if (!user) {
+    console.log("User data is undefined");
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="privacy-settings-page">
@@ -91,6 +126,11 @@ function PrivacySettings() {
             </ol>
           </nav>
           <h2 className="section-heading mb-5">Privacy & Security</h2>
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
           <form
             className="needs-validation"
             noValidate
@@ -141,10 +181,7 @@ function PrivacySettings() {
               <input
                 type="password"
                 className={`form-control modern-input ${
-                  validated &&
-                  passwordForm.newPassword !== passwordForm.confirmPassword
-                    ? "is-invalid"
-                    : ""
+                  validated && !passwordForm.confirmPassword ? "is-invalid" : ""
                 }`}
                 id="confirmPassword"
                 name="confirmPassword"
@@ -153,7 +190,7 @@ function PrivacySettings() {
                 required
               />
               <div className="invalid-feedback">
-                Passwords do not match.
+                Please confirm your new password.
               </div>
             </div>
             <div className="text-end">
@@ -212,7 +249,7 @@ function PrivacySettings() {
         aria-atomic="true"
       >
         <div className="d-flex">
-          <div className="toast-body">{toastMessage}</div>
+          <div className="toast-body">{toastMessage || error}</div>
           <button
             type="button"
             className="btn-close me-2 m-auto"
