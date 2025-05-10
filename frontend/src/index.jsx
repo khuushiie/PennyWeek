@@ -19,6 +19,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AboutUs from './pages/AboutUs';
 import Home from './pages/Home';
+import NotFound from './pages/NotFound';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -39,6 +40,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
         </TransactionProvider>
