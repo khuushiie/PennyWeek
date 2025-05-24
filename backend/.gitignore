@@ -1,6 +1,6 @@
 node_modules/
 .env .env.local .env.development .env.production backend/.env client/.env
-dist/
-build/
-uploads/
-*.log
+dist/ build/ client/dist/ client/build/
+backend/uploads/ *.log logs/
+.vscode/ .idea/ *.swp *.swo
+.DS_Store Thumbs.db
