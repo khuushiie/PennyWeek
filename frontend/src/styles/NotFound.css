@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.not-found-page {
+  background-color: #F4F9FC;
+  min-height: 100vh;
+  padding-top: 0;
+  padding-bottom: 80px;
+  font-family: 'Poppins', sans-serif;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%2300A3E0' fill-opacity='0.3' d='M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,117.3C672,117,768,171,864,181.3C960,192,1056,160,1152,149.3C1248,139,1344,149,1392,154.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: bottom;
+}
+
+.not-found-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 163, 224, 0.2);
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 3.5rem;
+}
+
+.display-1 {
+  color: #00A3E0;
+  font-size: 6rem;
+  font-weight: 700;
+}
+
+.section-heading {
+  color: #1A3C5A;
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.text-secondary {
+  color: #6C757D;
+}
+
+.btn-primary-modern {
+  background:  #00A3E0;
+  border: none;
+  color: #F4F9FC;
+  font-weight: 600;
+  border-radius: 50px;
+  padding: 0.85rem 2.5rem;
+  transition: background 0.3s ease;
+}
+
+.btn-primary-modern:hover {
+  background:  #005B99;
+  color: #F4F9FC;
+}
+
+@media (max-width: 767px) {
+  .not-found-card {
+    padding: 2.5rem;
+  }
+
+  .display-1 {
+    font-size: 4rem;
+  }
+
+  .section-heading {
+    font-size: 1.9rem;
+  }
+
+  .btn-primary-modern {
+    padding: 0.7rem 2rem;
+    font-size: 0.95rem;
+  }
+}

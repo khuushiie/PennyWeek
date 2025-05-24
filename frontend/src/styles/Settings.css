@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.settings-page {
+  background-color: #F4F9FC;
+  min-height: 100vh;
+  padding-top: 0;
+  padding-bottom: 80px;
+  font-family: 'Poppins', sans-serif;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%2300A3E0' fill-opacity='0.3' d='M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,117.3C672,117,768,171,864,181.3C960,192,1056,160,1152,149.3C1248,139,1344,149,1392,154.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: bottom;
+}
+
+.settings-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 163, 224, 0.2);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem;
+}
+
+.section-heading {
+  color: #1A3C5A;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.settings-option-card {
+  background: linear-gradient(135deg, #F4F9FC 0%, #E6F0FA 100%);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  height: 260px; /* Increased height to accommodate content */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden; /* Prevent content from spilling out */
+}
+
+.settings-option-card:hover {
+  border-color: #FFD700;
+  background: linear-gradient(135deg, #E6F0FA 0%, #D4E6F7 100%);
+  transform: translateY(-5px);
+}
+
+.option-icon {
+  color: #00A3E0;
+  margin-bottom: 1rem;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.option-title {
+  color: #1A3C5A;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0; /* Prevent title from shrinking */
+}
+
+.option-description {
+  color: #6C757D;
+  font-size: 0.95rem;
+  margin: 0;
+  flex-grow: 1; /* Allow description to take available space */
+  overflow: hidden; /* Hide excess text */
+  text-overflow: ellipsis; /* Add ellipsis for overflow */
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* Increased to 4 lines for more content */
+  -webkit-box-orient: vertical; /* Vertical box for line clamping */
+}
+
+@media (max-width: 991px) {
+  .settings-card {
+    padding: 2rem;
+  }
+
+  .section-heading {
+    font-size: 1.8rem;
+  }
+
+  .settings-option-card {
+    padding: 1.5rem;
+    height: 240px; /* Adjusted height for medium screens */
+  }
+
+  .option-title {
+    font-size: 1.2rem;
+  }
+
+  .option-description {
+    font-size: 0.9rem;
+    -webkit-line-clamp: 3; /* Reduced to 3 lines for medium screens */
+  }
+}
+
+@media (max-width: 767px) {
+  .settings-card {
+    padding: 1.5rem;
+  }
+
+  .section-heading {
+    font-size: 1.6rem;
+  }
+
+  .settings-option-card {
+    padding: 1rem;
+    height: 220px; /* Adjusted height for mobile */
+  }
+
+  .option-description {
+    -webkit-line-clamp: 3; /* Keep 3 lines for mobile */
+  }
+}

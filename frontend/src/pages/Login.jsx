@@ -1,56 +1,69 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaEnvelope, FaLock, FaGoogle } from "react-icons/fa";
+import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuth } from "../AuthContext";
 import "../styles/Login.css";
 
 function Login() {
-  const { setIsLoggedIn } = useAuth();
+  const { isLoggedIn, login } = useAuth();
   const navigate = useNavigate();
-  const [validated, setValidated] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [validated, setValidated] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: "", isError: false });
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log("Login: User already logged in, redirecting to /dashboard");
+      navigate("/dashboard");
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    setFormData({
-      ...formData,
-      [id]: value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const form = event.target;
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const form = e.target;
     setValidated(true);
+    setToast({ show: false, message: "", isError: false });
 
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
-    } else {
-      setIsLoggedIn(true); // Update AuthContext
-      console.log("Login Submitted:", formData);
-      setShowToast(true);
+    if (!form.checkValidity()) {
+      console.log("Login: Form validation failed");
+      e.stopPropagation();
+      return;
+    }
+
+    if (!formData.email || !formData.password) {
+      setToast({ show: true, message: "Email and password are required", isError: true });
+      return;
+    }
+
+    try {
+      console.log("Login: Submitting form data:", formData);
+      await login(formData.email, formData.password);
+      setToast({ show: true, message: "Login successful", isError: false });
+      setFormData({ email: "", password: "" });
+      setValidated(false);
       setTimeout(() => {
-        setShowToast(false);
-        navigate("/dashboard"); // Redirect to dashboard
-        setFormData({ email: "", password: "" }); // Reset form
-      }, 3000);
+        setToast({ show: false, message: "", isError: false });
+        navigate("/dashboard");
+      }, 2000);
+    } catch (err) {
+      console.error("Login: Error:", err.response?.data || err.message);
+      setToast({ show: true, message: err.message || "Invalid credentials", isError: true });
+      setTimeout(() => setToast({ show: false, message: "", isError: false }), 3000);
     }
   };
 
-  const handleGoogleSignIn = () => {
-    setIsLoggedIn(true); // Simulate Google Sign-In
-    console.log("Google Sign In clicked");
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-      navigate("/dashboard"); // Redirect to dashboard
-    }, 3000);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -62,36 +75,30 @@ function Login() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <motion.p
-            className="text-center mb-3 tagline"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-          >
-            Log In to Manage Your Finances!
-          </motion.p>
-          <h2 className="mb-4 text-center">Login</h2>
-
-          <button
-            className="btn btn-outline-primary w-100 mb-3"
-            onClick={handleGoogleSignIn}
-          >
-            <FaGoogle className="me-2" /> Sign in with Google
-          </button>
-
-          <div className="text-center mb-3">
-            <span className="or-divider">or</span>
-          </div>
-
-          <form
-            className="needs-validation"
-            noValidate
-            onSubmit={handleSubmit}
-          >
+          <h2 className="mb-4 text-center">Log In to PennyWeek</h2>
+          {toast.show && (
+            <motion.div
+              className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${
+                toast.isError ? 'text-bg-danger' : 'text-bg-success'
+              }`}
+              role="alert"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="d-flex">
+                <div className="toast-body">{toast.message}</div>
+                <button
+                  type="button"
+                  className="btn-close me-2 m-auto"
+                  onClick={() => setToast({ show: false, message: "", isError: false })}
+                  aria-label="Close"
+                ></button>
+              </div>
+            </motion.div>
+          )}
+          <form className="needs-validation" noValidate onSubmit={handleSubmit}>
             <div className="mb-3 position-relative">
-              <label htmlFor="email" className="form-label login-heading">
-                Email address
-              </label>
               <div className="input-group">
                 <span className="input-group-text">
                   <FaEnvelope color="#00A3E0" />
@@ -102,76 +109,64 @@ function Login() {
                     validated && !formData.email ? "is-invalid" : ""
                   }`}
                   id="email"
-                  placeholder="Enter your email"
+                  name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  placeholder="Enter email"
                   required
                   aria-label="Email"
                 />
-                <div className="invalid-feedback">
-                  Please provide a valid email address.
-                </div>
+                <div className="invalid-feedback">Please enter a valid email.</div>
               </div>
             </div>
-
             <div className="mb-3 position-relative">
-              <label htmlFor="password" className="form-label login-heading">
-                Password
-              </label>
               <div className="input-group">
                 <span className="input-group-text">
                   <FaLock color="#00A3E0" />
                 </span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   className={`form-control ${
                     validated && !formData.password ? "is-invalid" : ""
                   }`}
                   id="password"
-                  placeholder="Enter your password"
+                  name="password"
                   value={formData.password}
                   onChange={handleInputChange}
+                  placeholder="Enter password"
                   required
-                  minLength="6"
                   aria-label="Password"
                 />
-                <div className="invalid-feedback">
-                  Password must be at least 6 characters.
-                </div>
+                <span className="input-group-text password-toggle">
+                  <i
+                    className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}
+                    onClick={togglePasswordVisibility}
+                    style={{ cursor: "pointer", color: "#00A3E0" }}
+                  ></i>
+                </span>
+                <div className="invalid-feedback">Please enter your password.</div>
               </div>
             </div>
-
-            <button type="submit" className="btn btn-primary login w-100">
-              Login
-            </button>
+            <div className="text-center mb-3">
+              <motion.button
+                type="submit"
+                className="btn btn-primary w-100"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Log In
+              </motion.button>
+            </div>
+            <div className="text-center">
+              <p>
+                Don't have an account?{" "}
+                <Link to="/register" className="link-primary">
+                  Register
+                </Link>
+              </p>
+            </div>
           </form>
-
-          <div className="mt-3 text-center">
-            Don't have an account?{" "}
-            <Link to="/register" className="register-link">
-              Register here
-            </Link>
-          </div>
         </motion.div>
-      </div>
-
-      <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
-          showToast ? "show" : ""
-        }`}
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        <div className="d-flex">
-          <div className="toast-body">Login successful!</div>
-          <button
-            type="button"
-            className="btn-close me-2 m-auto"
-            onClick={() => setShowToast(false)}
-            aria-label="Close"
-          ></button>
-        </div>
       </div>
     </div>
   );

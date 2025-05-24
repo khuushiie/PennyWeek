@@ -1,22 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUser, FaEnvelope, FaLock, FaGoogle } from "react-icons/fa";
+import axios from "axios";
 import { useAuth } from "../AuthContext";
 import "../styles/Register.css";
 
 function Register() {
   const [validated, setValidated] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: "", isError: false });
   const [isSignedUp, setIsSignedUp] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const { setIsLoggedIn } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsSignedUp(false);
+  }, []);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -32,34 +39,68 @@ function Register() {
     return { text: "Strong", width: "100%", color: "#28A745" };
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
 
     setValidated(true);
+    setToast({ show: false, message: "", isError: false });
 
     if (form.checkValidity() === false) {
+      console.log("Register: Form validation failed");
       event.stopPropagation();
-    } else {
-      setShowToast(true);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setToast({ show: true, message: "Passwords do not match", isError: true });
+      return;
+    }
+
+    if (!formData.name || !formData.email || !formData.password) {
+      setToast({ show: true, message: "Please provide name, email, and password", isError: true });
+      return;
+    }
+
+    try {
+      const { name, email, password } = formData;
+      console.log("Register: Registering user:", { name, email, password });
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        { name, email, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Register: Registration response:", response.data);
+      await login(email, password);
+      setToast({ show: true, message: "Registration successful! Redirecting to dashboard...", isError: false });
       setIsSignedUp(true);
-      setIsLoggedIn(true);
+      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+      setValidated(false);
       setTimeout(() => {
-        setShowToast(false);
-        navigate("/");
-      }, 3000);
+        navigate("/dashboard");
+      }, 2000);
+    } catch (err) {
+      console.error("Register: Registration error:", err.response?.data || err.message);
+      const errorMessage = err.response?.data?.message || "Registration failed";
+      setToast({ show: true, message: errorMessage, isError: true });
     }
   };
 
   const handleGoogleSignUp = () => {
-    console.log("Google Sign Up clicked");
-    setIsSignedUp(true);
-    setIsLoggedIn(true);
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-      navigate("/");
-    }, 3000);
+    console.log("Register: Google Sign Up clicked");
+    setToast({ show: true, message: "Google Sign Up not implemented yet", isError: true });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
@@ -110,17 +151,17 @@ function Register() {
                     <input
                       type="text"
                       className={`form-control ${
-                        validated && !formData.username ? "is-invalid" : ""
+                        validated && !formData.name ? "is-invalid" : ""
                       }`}
-                      id="username"
-                      placeholder="Enter username"
-                      value={formData.username}
+                      id="name"
+                      placeholder="Enter name"
+                      value={formData.name}
                       onChange={handleInputChange}
                       required
-                      aria-label="Username"
+                      aria-label="Name"
                     />
                     <div className="invalid-feedback">
-                      Please provide a valid username.
+                      Please provide a valid name.
                     </div>
                   </div>
                 </div>
@@ -154,7 +195,7 @@ function Register() {
                       <FaLock color="#00A3E0" />
                     </span>
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       className={`form-control ${
                         validated && !formData.password ? "is-invalid" : ""
                       }`}
@@ -166,6 +207,13 @@ function Register() {
                       minLength="6"
                       aria-label="Password"
                     />
+                    <span className="input-group-text password-toggle">
+                      <i
+                        className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}
+                        onClick={togglePasswordVisibility}
+                        style={{ cursor: "pointer", color: "#00A3E0" }}
+                      ></i>
+                    </span>
                     <div className="invalid-feedback">
                       Password must be at least 6 characters.
                     </div>
@@ -194,7 +242,7 @@ function Register() {
                       <FaLock color="#00A3E0" />
                     </span>
                     <input
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       className={`form-control ${
                         validated && formData.confirmPassword !== formData.password
                           ? "is-invalid"
@@ -207,13 +255,25 @@ function Register() {
                       required
                       aria-label="Confirm Password"
                     />
+                    <span className="input-group-text password-toggle">
+                      <i
+                        className={showConfirmPassword ? "fas fa-eye-slash" : "fas fa-eye"}
+                        onClick={toggleConfirmPasswordVisibility}
+                        style={{ cursor: "pointer", color: "#00A3E0" }}
+                      ></i>
+                    </span>
                     <div className="invalid-feedback">Passwords must match.</div>
                   </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary register w-100">
+                <motion.button
+                  type="submit"
+                  className="btn btn-primary register w-100"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   Register
-                </button>
+                </motion.button>
               </form>
 
               <div className="mt-3 text-center">
@@ -227,24 +287,37 @@ function Register() {
         </motion.div>
       </div>
 
-      <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
-          showToast ? "show" : ""
-        }`}
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        <div className="d-flex">
-          <div className="toast-body">Registration successful!</div>
-          <button
-            type="button"
-            className="btn-close me-2 m-auto"
-            onClick={() => setShowToast(false)}
-            aria-label="Close"
-          ></button>
-        </div>
-      </div>
+      {toast.show && (
+        <motion.div
+          className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${
+            toast.isError ? 'text-bg-danger' : 'text-bg-success'
+          }`}
+          role="alert"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="d-flex">
+            <div className="toast-body">
+              {toast.message}
+              {toast.message === 'Email already registered' && (
+                <>
+                  {' '}
+                  <Link to="/login" className="text-white text-decoration-underline">
+                    Log in instead
+                  </Link>
+                </>
+              )}
+            </div>
+            <button
+              type="button"
+              className="btn-close me-2 m-auto"
+              onClick={() => setToast({ show: false, message: "", isError: false })}
+              aria-label="Close"
+            ></button>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

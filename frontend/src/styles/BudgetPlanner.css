@@ -1,0 +1,44 @@
+/* frontend/src/styles/BudgetPlanner.css */
+.budget-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+}
+
+.section-heading {
+  color: #1A3C5A;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+.progress {
+  height: 20px;
+  background-color: #F4F9FC;
+  border-radius: 10px;
+}
+
+.progress-bar {
+  background-color: #00A3E0;
+  color: #F4F9FC;
+  text-align: right;
+  padding-right: 5px;
+}
+
+.progress-bar.bg-danger {
+  background-color: #FF6B6B;
+}
+
+.form-control {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #1A3C5A;
+  font-family: 'Poppins', sans-serif;
+}
+
+.btn-primary {
+  background-color: #00A3E0;
+  border: none;
+}
