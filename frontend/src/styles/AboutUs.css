@@ -12,11 +12,11 @@
 }
 
 .hero-section-about {
-  background-image: linear-gradient(rgba(0, 163, 224, 0.7), rgba(0, 91, 153, 0.7)), url('/assets/img8.png') !important; /* Changed to verified image with fallback */
+  background-image:  url('/assets/img8.png') !important; /* Changed to verified image with fallback */
   background-size: cover;
   background-position: center;
   padding: 100px 20px;
-  color: #F4F9FC;
+  color: #1A3C5A;
   margin: 0; /* Removed margin-bottom to eliminate gap */
 }
 
@@ -38,7 +38,7 @@
 }
 
 .cta-button {
-  background-color: #FFD700;
+  background-color: #00A3E0;
   color: #1A3C5A;
   border: none;
   padding: 0.75rem 2rem;
@@ -109,4 +109,8 @@
   color: #1A3C5A;
   font-size: 0.9rem;
   padding: 0 1rem 1rem;
+} .navbar {
+  background-color: #F4F9FC;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

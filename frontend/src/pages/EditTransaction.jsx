@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { useTransactions } from '../TransactionContext';
-import '../styles/AddTransaction.css';
+import '../styles/EditTransaction.css';
 
-const AddTransaction = () => {
+const EditTransaction = () => {
   const { user } = useAuth();
-  const { addTransaction } = useTransactions();
+  const { transactions, saveTransaction } = useTransactions();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     amount: '',
     category: '',
     type: 'expense',
-    date: new Date().toISOString().split('T')[0],
+    date: '',
     currency: 'INR',
     note: ''
   });
@@ -25,26 +25,50 @@ const AddTransaction = () => {
 
   const categories = ['Food', 'Transport', 'Utilities', 'Salary', 'Freelance', 'Entertainment', 'Uncategorized'];
 
+  // Fetch transaction data
+  useEffect(() => {
+    const transaction = transactions.find(t => t._id === id);
+    if (transaction) {
+      console.log('EditTransaction: Loaded transaction:', transaction);
+      setFormData({
+        amount: transaction.amount.toString(),
+        category: transaction.category,
+        type: transaction.type,
+        date: new Date(transaction.date).toISOString().split('T')[0],
+        currency: transaction.currency || 'INR',
+        note: transaction.note || ''
+      });
+    } else {
+      console.error('EditTransaction: Transaction not found:', id);
+      setError('Transaction not found');
+    }
+  }, [id, transactions]);
+
+  // Fetch suggested category when note changes
   useEffect(() => {
     if (formData.note) {
-      console.log('Fetching suggestion for note:', formData.note);
-      axios
-        .post('http://localhost:5000/api/transactions/suggest-category', { note: formData.note }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        })
-        .then(response => {
-          console.log('Suggested category:', response.data.category);
-          setSuggestedCategory(response.data.category);
-          setFormData(prev => ({ ...prev, category: response.data.category }));
+      console.log('EditTransaction: Fetching suggestion for note:', formData.note);
+      fetch('http://localhost:5000/api/transactions/suggest-category', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ note: formData.note })
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('EditTransaction: Suggested category:', data.category);
+          setSuggestedCategory(data.category);
+          setFormData(prev => ({ ...prev, category: data.category }));
         })
         .catch(err => {
-          console.error('Suggestion error:', err.message, 'Status:', err.response?.status, 'Response:', err.response?.data);
+          console.error('EditTransaction: Suggestion error:', err);
           setSuggestedCategory('Uncategorized');
           setFormData(prev => ({ ...prev, category: 'Uncategorized' }));
-          // Suppress toast for suggestion errors to avoid UX clutter
         });
     } else {
-      console.log('No note, resetting category');
+      console.log('EditTransaction: No note, resetting category');
       setSuggestedCategory('');
       setFormData(prev => ({ ...prev, category: '' }));
     }
@@ -52,7 +76,7 @@ const AddTransaction = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Updating ${name}:`, value);
+    console.log(`EditTransaction: Updating ${name}:`, value);
     setFormData({ ...formData, [name]: value });
   };
 
@@ -74,8 +98,9 @@ const AddTransaction = () => {
     setError(null);
     setSuccess(null);
     try {
-      console.log('Submitting transaction:', formData);
-      await addTransaction({
+      console.log('EditTransaction: Saving transaction:', formData);
+      await saveTransaction({
+        _id: id,
         amount: parseFloat(formData.amount),
         category: formData.category,
         type: formData.type,
@@ -83,21 +108,13 @@ const AddTransaction = () => {
         currency: formData.currency,
         note: formData.note
       });
-      setSuccess('Transaction added successfully!');
-      setFormData({
-        amount: '',
-        category: '',
-        type: 'expense',
-        date: new Date().toISOString().split('T')[0],
-        currency: 'INR',
-        note: ''
-      });
+      setSuccess('Transaction updated successfully!');
       setTimeout(() => {
         navigate('/dashboard');
       }, 1500);
     } catch (err) {
-      console.error('Submit error:', err);
-      setError(err.message || 'Failed to add transaction');
+      console.error('EditTransaction: Save error:', err);
+      setError(err.message || 'Failed to update transaction');
       setLoading(false);
     }
   };
@@ -106,33 +123,23 @@ const AddTransaction = () => {
 
   return (
     <motion.div
-      className="add-transaction-page container py-5"
+      className="edit-transaction-page container py-5"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      <h2 className="section-heading text-center mb-4">Add Transaction</h2>
+      <h2 className="section-heading text-center mb-4">Edit Transaction</h2>
       {error && (
-        <motion.div
-          className="alert alert-danger"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div className="alert alert-danger" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           {error}
         </motion.div>
       )}
       {success && (
-        <motion.div
-          className="alert alert-success"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div className="alert alert-success" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           {success}
         </motion.div>
       )}
-      <form onSubmit={handleSubmit} className="add-transaction-form">
+      <form onSubmit={handleSubmit} className="edit-transaction-form">
         <div className="row g-3">
           <div className="col-md-6">
             <label htmlFor="amount" className="form-label">Amount</label>
@@ -232,7 +239,7 @@ const AddTransaction = () => {
           </div>
           <div className="col-12 text-center">
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Transaction'}
+              {loading ? 'Updating...' : 'Update Transaction'}
             </button>
           </div>
         </div>
@@ -241,4 +248,4 @@ const AddTransaction = () => {
   );
 };
 
-export default AddTransaction;
+export default EditTransaction;

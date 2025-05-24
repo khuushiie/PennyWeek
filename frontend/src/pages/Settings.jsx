@@ -31,7 +31,7 @@ function Settings() {
     },
     {
       title: "Preferences",
-      description: "Customize theme, currency, and notifications.",
+      description: "Customize currency, and notifications.",
       icon: <FaCog size={32} />,
       path: "/settings/preferences",
     },

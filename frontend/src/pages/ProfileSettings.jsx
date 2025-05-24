@@ -13,10 +13,8 @@ function ProfileSettings() {
     photo: "",
   });
   const [validated, setValidated] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [error, setError] = useState("");
+  const [toast, setToast] = useState({ show: false, message: "", isError: false });
 
-  // Initialize formData when user is loaded
   useEffect(() => {
     if (user) {
       setFormData({
@@ -27,80 +25,79 @@ function ProfileSettings() {
     }
   }, [user]);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!isLoggedIn) {
-      console.log("User not logged in, redirecting to /login");
+      console.log("ProfileSettings: User not logged in, redirecting to /login");
       navigate("/login");
     }
   }, [isLoggedIn, navigate]);
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle photo upload with error handling
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) {
-      console.log("No file selected");
-      setError("Please select an image file.");
-      setShowToast(true);
+      console.log("ProfileSettings: No file selected");
+      setToast({ show: true, message: "Please select an image file", isError: true });
       return;
     }
 
     try {
-      if (file.size > 5 * 1024 * 1024) { // Limit to 5MB
-        throw new Error("File size exceeds 5MB limit.");
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error("File size exceeds 5MB limit");
+      }
+      if (!file.type.startsWith('image/')) {
+        throw new Error("Please select an image file");
       }
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        console.log("File read successfully");
+        console.log("ProfileSettings: File read successfully");
         setFormData((prev) => ({ ...prev, photo: reader.result }));
-        setError("");
+        setToast({ show: false, message: "", isError: false });
       };
       reader.onerror = () => {
-        throw new Error("Failed to read file.");
+        throw new Error("Failed to read file");
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      console.error("Photo upload error:", err);
-      setError(err.message);
-      setShowToast(true);
+      console.error("ProfileSettings: Photo upload error:", err.message);
+      setToast({ show: true, message: err.message, isError: true });
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
     setValidated(true);
 
-    if (form.checkValidity()) {
-      try {
-        await updateUser({
-          name: formData.name,
-          email: formData.email,
-          photo: formData.photo,
-        });
-        console.log("Profile updated successfully");
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
-        setValidated(false);
-        setError("");
-      } catch (err) {
-        console.error("Update user error:", err);
-        setError(err.message || "Failed to update profile.");
-        setShowToast(true);
-      }
+    if (!form.checkValidity()) {
+      console.log("ProfileSettings: Form validation failed");
+      return;
     }
+
+    try {
+      console.log("ProfileSettings: Submitting form data:", formData);
+      await updateUser({
+        name: formData.name,
+        email: formData.email,
+        photo: formData.photo || undefined,
+      });
+      setToast({ show: true, message: "Profile updated successfully", isError: false });
+      setValidated(false);
+    } catch (err) {
+      console.error("ProfileSettings: Update user error:", err.message);
+      setToast({ show: true, message: err.message || "Failed to update profile", isError: true });
+    }
+
+    setTimeout(() => setToast({ show: false, message: "", isError: false }), 3000);
   };
 
   if (!user) {
-    console.log("User data is undefined");
+    console.log("ProfileSettings: User data is undefined");
     return <div>Loading...</div>;
   }
 
@@ -124,11 +121,6 @@ function ProfileSettings() {
             </ol>
           </nav>
           <h2 className="section-heading mb-4">Profile Settings</h2>
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
           <form
             className="needs-validation"
             noValidate
@@ -218,26 +210,25 @@ function ProfileSettings() {
         </motion.div>
       </div>
 
-      <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
-          showToast ? "show" : ""
-        }`}
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        <div className="d-flex">
-          <div className="toast-body">
-            {error ? error : "Profile updated successfully!"}
+      {toast.show && (
+        <motion.div
+          className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${toast.isError ? 'text-bg-danger' : 'text-bg-success'}`}
+          role="alert"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="d-flex">
+            <div className="toast-body">{toast.message}</div>
+            <button
+              type="button"
+              className="btn-close me-2 m-auto"
+              onClick={() => setToast({ show: false, message: "", isError: false })}
+              aria-label="Close"
+            ></button>
           </div>
-          <button
-            type="button"
-            className="btn-close me-2 m-auto"
-            onClick={() => setShowToast(false)}
-            aria-label="Close"
-          ></button>
-        </div>
-      </div>
+        </motion.div>
+      )}
     </div>
   );
 }

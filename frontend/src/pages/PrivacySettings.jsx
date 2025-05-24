@@ -18,8 +18,10 @@ function PrivacySettings() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [error, setError] = useState("");
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Initialize preferences when user is loaded
   useEffect(() => {
     if (user?.preferences) {
       setDataSharing(user.preferences.dataSharing || false);
@@ -27,7 +29,6 @@ function PrivacySettings() {
     }
   }, [user]);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!isLoggedIn) {
       console.log("User not logged in, redirecting to /login");
@@ -35,13 +36,11 @@ function PrivacySettings() {
     }
   }, [isLoggedIn, navigate]);
 
-  // Handle password input
   const handlePasswordInput = (e) => {
     const { name, value } = e.target;
     setPasswordForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle password form submission
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -74,7 +73,6 @@ function PrivacySettings() {
     }
   };
 
-  // Handle toggles
   const handleToggleChange = async (e, field) => {
     const { checked } = e.target;
     try {
@@ -99,6 +97,18 @@ function PrivacySettings() {
       setError("Failed to update settings.");
       setShowToast(true);
     }
+  };
+
+  const toggleOldPasswordVisibility = () => {
+    setShowOldPassword(!showOldPassword);
+  };
+
+  const toggleNewPasswordVisibility = () => {
+    setShowNewPassword(!showNewPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   if (!user) {
@@ -136,61 +146,85 @@ function PrivacySettings() {
             noValidate
             onSubmit={handlePasswordSubmit}
           >
-            <div className="mb-4">
+            <div className="mb-4 position-relative">
               <label htmlFor="oldPassword" className="form-label">
                 Old Password
               </label>
-              <input
-                type="password"
-                className={`form-control modern-input ${
-                  validated && !passwordForm.oldPassword ? "is-invalid" : ""
-                }`}
-                id="oldPassword"
-                name="oldPassword"
-                value={passwordForm.oldPassword}
-                onChange={handlePasswordInput}
-                required
-              />
-              <div className="invalid-feedback">
-                Please enter your old password.
+              <div className="input-group">
+                <input
+                  type={showOldPassword ? "text" : "password"}
+                  className={`form-control modern-input ${validated && !passwordForm.oldPassword ? "is-invalid" : ""
+                    }`}
+                  id="oldPassword"
+                  name="oldPassword"
+                  value={passwordForm.oldPassword}
+                  onChange={handlePasswordInput}
+                  required
+                />
+                <span className="input-group-text password-toggle">
+                  <i
+                    className={showOldPassword ? "fas fa-eye-slash" : "fas fa-eye"}
+                    onClick={toggleOldPasswordVisibility}
+                    style={{ cursor: "pointer", color: "#00A3E0" }}
+                  ></i>
+                </span>
+                <div className="invalid-feedback">
+                  Please enter your old password.
+                </div>
               </div>
             </div>
-            <div className="mb-4">
+            <div className="mb-4 position-relative">
               <label htmlFor="newPassword" className="form-label">
                 New Password
               </label>
-              <input
-                type="password"
-                className={`form-control modern-input ${
-                  validated && !passwordForm.newPassword ? "is-invalid" : ""
-                }`}
-                id="newPassword"
-                name="newPassword"
-                value={passwordForm.newPassword}
-                onChange={handlePasswordInput}
-                required
-              />
-              <div className="invalid-feedback">
-                Please enter a new password.
+              <div className="input-group">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  className={`form-control modern-input ${validated && !passwordForm.newPassword ? "is-invalid" : ""
+                    }`}
+                  id="newPassword"
+                  name="newPassword"
+                  value={passwordForm.newPassword}
+                  onChange={handlePasswordInput}
+                  required
+                />
+                <span className="input-group-text password-toggle">
+                  <i
+                    className={showNewPassword ? "fas fa-eye-slash" : "fas fa-eye"}
+                    onClick={toggleNewPasswordVisibility}
+                    style={{ cursor: "pointer", color: "#00A3E0" }}
+                  ></i>
+                </span>
+                <div className="invalid-feedback">
+                  Please enter a new password.
+                </div>
               </div>
             </div>
-            <div className="mb-4">
+            <div className="mb-4 position-relative">
               <label htmlFor="confirmPassword" className="form-label">
                 Confirm New Password
               </label>
-              <input
-                type="password"
-                className={`form-control modern-input ${
-                  validated && !passwordForm.confirmPassword ? "is-invalid" : ""
-                }`}
-                id="confirmPassword"
-                name="confirmPassword"
-                value={passwordForm.confirmPassword}
-                onChange={handlePasswordInput}
-                required
-              />
-              <div className="invalid-feedback">
-                Please confirm your new password.
+              <div className="input-group">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  className={`form-control modern-input ${validated && !passwordForm.confirmPassword ? "is-invalid" : ""
+                    }`}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={passwordForm.confirmPassword}
+                  onChange={handlePasswordInput}
+                  required
+                />
+                <span className="input-group-text password-toggle">
+                  <i
+                    className={showConfirmPassword ? "fas fa-eye-slash" : "fas fa-eye"}
+                    onClick={toggleConfirmPasswordVisibility}
+                    style={{ cursor: "pointer", color: "#00A3E0" }}
+                  ></i>
+                </span>
+                <div className="invalid-feedback">
+                  Please confirm your new password.
+                </div>
               </div>
             </div>
             <div className="text-end">
@@ -241,9 +275,8 @@ function PrivacySettings() {
       </div>
 
       <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
-          showToast ? "show" : ""
-        }`}
+        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${showToast ? "show" : ""
+          }`}
         role="alert"
         aria-live="assertive"
         aria-atomic="true"

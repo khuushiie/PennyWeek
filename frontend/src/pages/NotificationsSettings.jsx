@@ -14,7 +14,8 @@ function NotificationsSettings() {
     notificationFrequency: "immediate",
   });
   const [showToast, setShowToast] = useState(false);
-  const [error, setError] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   // Initialize formData when user is loaded
   useEffect(() => {
@@ -49,22 +50,20 @@ function NotificationsSettings() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateUser({
-        preferences: {
-          ...user.preferences,
-          emailNotifications: formData.emailNotifications,
-          smsNotifications: formData.smsNotifications,
-          pushNotifications: formData.pushNotifications,
-          notificationFrequency: formData.notificationFrequency,
-        },
-      });
+      const fullPreferences = {
+        ...user.preferences,
+        ...formData,
+      };
+      await updateUser({ preferences: fullPreferences }, false);
       console.log("Notifications updated successfully");
+      setToastMessage("Notifications updated successfully!");
+      setIsError(false);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
-      setError("");
     } catch (err) {
-      console.error("Update notifications error:", err);
-      setError(err.message || "Failed to update notifications.");
+      console.error("Update notifications error:", err.message);
+      setToastMessage(err.message || "Failed to update notifications");
+      setIsError(true);
       setShowToast(true);
     }
   };
@@ -94,11 +93,6 @@ function NotificationsSettings() {
             </ol>
           </nav>
           <h2 className="section-heading mb-5">Notification Settings</h2>
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <h4 className="notification-heading">Notification Channels</h4>
@@ -111,10 +105,7 @@ function NotificationsSettings() {
                   checked={formData.emailNotifications}
                   onChange={handleInputChange}
                 />
-                <label
-                  className="form-check-label"
-                  htmlFor="emailNotifications"
-                >
+                <label className="form-check-label" htmlFor="emailNotifications">
                   Email Notifications
                 </label>
               </div>
@@ -127,10 +118,7 @@ function NotificationsSettings() {
                   checked={formData.smsNotifications}
                   onChange={handleInputChange}
                 />
-                <label
-                  className="form-check-label"
-                  htmlFor="smsNotifications"
-                >
+                <label className="form-check-label" htmlFor="smsNotifications">
                   SMS Notifications
                 </label>
               </div>
@@ -143,10 +131,7 @@ function NotificationsSettings() {
                   checked={formData.pushNotifications}
                   onChange={handleInputChange}
                 />
-                <label
-                  className="form-check-label"
-                  htmlFor="pushNotifications"
-                >
+                <label className="form-check-label" htmlFor="pushNotifications">
                   Push Notifications
                 </label>
               </div>
@@ -183,17 +168,15 @@ function NotificationsSettings() {
       </div>
 
       <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
+        className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${
           showToast ? "show" : ""
-        }`}
+        } ${isError ? "text-bg-danger" : "text-bg-success"}`}
         role="alert"
         aria-live="assertive"
         aria-atomic="true"
       >
         <div className="d-flex">
-          <div className="toast-body">
-            {error ? error : "Notifications updated successfully!"}
-          </div>
+          <div className="toast-body">{toastMessage}</div>
           <button
             type="button"
             className="btn-close me-2 m-auto"

@@ -1,5 +1,39 @@
-body{
-  font-family: "Ubuntu Mono", monospace;
+/* :root[data-theme="light"] {
+     --background-color: #F4F9FC;
+     --card-background: #FFFFFF;
+     --text-color: #1A3C5A;
+     --primary-color: #00A3E0;
+     --primary-hover: #005B99;
+     --border-color: #F4F9FC;
+     --shadow-color: rgba(0, 0, 0, 0.1);
+     --toast-bg: #F4F9FC;
+     --toast-border: #00A3E0;
+     --input-border: #00A3E0;
+     --input-focus: #FFD700;
+     --link-color: #00A3E0;
+     --link-hover: #005B99;
+     --wave-opacity: 0.2;
+   }
+
+   :root[data-theme="dark"] {
+     --background-color: #2D3748;
+     --card-background: #4A5568;
+     --text-color: #E2E8F0;
+     --primary-color: #00A3E0;
+     --primary-hover: #0077B6;
+     --border-color: #718096;
+     --shadow-color: rgba(0, 0, 0, 0.3);
+     --toast-bg: #4A5568;
+     --toast-border: #00A3E0;
+     --input-border: #00A3E0;
+     --input-focus: #FFD700;
+     --link-color: #4DA8DA;
+     --link-hover: #80C4E9;
+     --wave-opacity: 0.3;
+   } */
+    body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Poppins', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-
-

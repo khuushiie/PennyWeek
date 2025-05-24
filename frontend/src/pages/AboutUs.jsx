@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import "../styles/AboutUs.css";
@@ -30,7 +29,7 @@ function AboutUs() {
   return (
     <div className="about-page">
       {/* Hero Section */}
-      <div className="hero-section-about text-center">
+      <div className="hero-section-about text-center ">
         <motion.div
           className="hero-content"
           initial={{ opacity: 0, y: 50 }}

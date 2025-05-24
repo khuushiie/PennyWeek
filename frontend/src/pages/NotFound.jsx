@@ -13,7 +13,7 @@ function NotFound() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="display-1 text-primary">404</h1>
+          <h1 className="display-1 ">404</h1>
           <h2 className="section-heading mb-4">Page Not Found</h2>
           <p className="lead text-secondary mb-4">
             Oops! The page you're looking for doesn't exist or has been moved.

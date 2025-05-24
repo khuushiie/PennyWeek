@@ -37,6 +37,12 @@
   padding: 2rem;
   text-align: center;
   transition: all 0.3s ease;
+  height: 260px; /* Increased height to accommodate content */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden; /* Prevent content from spilling out */
 }
 
 .settings-option-card:hover {
@@ -47,20 +53,28 @@
 
 .option-icon {
   color: #00A3E0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 .option-title {
   color: #1A3C5A;
   font-size: 1.4rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0; /* Prevent title from shrinking */
 }
 
 .option-description {
   color: #6C757D;
   font-size: 0.95rem;
   margin: 0;
+  flex-grow: 1; /* Allow description to take available space */
+  overflow: hidden; /* Hide excess text */
+  text-overflow: ellipsis; /* Add ellipsis for overflow */
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* Increased to 4 lines for more content */
+  -webkit-box-orient: vertical; /* Vertical box for line clamping */
 }
 
 @media (max-width: 991px) {
@@ -74,6 +88,7 @@
 
   .settings-option-card {
     padding: 1.5rem;
+    height: 240px; /* Adjusted height for medium screens */
   }
 
   .option-title {
@@ -82,6 +97,7 @@
 
   .option-description {
     font-size: 0.9rem;
+    -webkit-line-clamp: 3; /* Reduced to 3 lines for medium screens */
   }
 }
 
@@ -96,5 +112,10 @@
 
   .settings-option-card {
     padding: 1rem;
+    height: 220px; /* Adjusted height for mobile */
+  }
+
+  .option-description {
+    -webkit-line-clamp: 3; /* Keep 3 lines for mobile */
   }
 }

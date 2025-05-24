@@ -1,0 +1,54 @@
+.edit-transaction-page {
+  background: #F4F9FC;
+}
+
+.section-heading {
+  color: #1A3C5A;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+.edit-transaction-form {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+}
+
+.form-control, .form-select {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #1A3C5A;
+  font-family: 'Poppins', sans-serif;
+}
+
+.btn-primary {
+  background-color: #00A3E0;
+  border: none;
+}
+
+.alert-danger {
+  background-color: rgba(255, 107, 107, 0.2);
+  color: #1A3C5A;
+  border: 1px solid #FF6B6B;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.alert-success {
+  background-color: rgba(0, 163, 224, 0.2);
+  color: #1A3C5A;
+  border: 1px solid #00A3E0;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.suggested-category {
+  background-color: rgba(0, 163, 224, 0.3);
+  color: #1A3C5A;
+  font-weight: 600;
+}

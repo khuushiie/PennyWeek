@@ -60,10 +60,16 @@ function Navbar() {
                   </Link>
                 </li>
                 <li className="nav-item">
+                  <Link to="/recurring-transaction" className="nav-link">
+                    Add Recurring
+                  </Link>
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link" to="/settings">
                     Settings
                   </Link>
                 </li>
+                
                 <li className="nav-item dropdown">
                   <a
                     className="nav-link dropdown-toggle d-flex align-items-center"

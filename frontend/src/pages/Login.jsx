@@ -13,48 +13,57 @@ function Login() {
     password: "",
   });
   const [validated, setValidated] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const [toast, setToast] = useState({ show: false, message: "", isError: false });
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (isLoggedIn) {
+      console.log("Login: User already logged in, redirecting to /dashboard");
       navigate("/dashboard");
     }
   }, [isLoggedIn, navigate]);
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
     setValidated(true);
+    setToast({ show: false, message: "", isError: false });
 
-    if (form.checkValidity() === false) {
+    if (!form.checkValidity()) {
+      console.log("Login: Form validation failed");
       e.stopPropagation();
       return;
     }
 
+    if (!formData.email || !formData.password) {
+      setToast({ show: true, message: "Email and password are required", isError: true });
+      return;
+    }
+
     try {
+      console.log("Login: Submitting form data:", formData);
       await login(formData.email, formData.password);
-      setToastMessage("Login successful!");
-      setShowToast(true);
+      setToast({ show: true, message: "Login successful", isError: false });
       setFormData({ email: "", password: "" });
       setValidated(false);
       setTimeout(() => {
-        setShowToast(false);
+        setToast({ show: false, message: "", isError: false });
         navigate("/dashboard");
-      }, 3000);
+      }, 2000);
     } catch (err) {
-      setToastMessage(err.message || "Login failed");
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
+      console.error("Login: Error:", err.response?.data || err.message);
+      setToast({ show: true, message: err.message || "Invalid credentials", isError: true });
+      setTimeout(() => setToast({ show: false, message: "", isError: false }), 3000);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -67,6 +76,27 @@ function Login() {
           transition={{ duration: 0.8 }}
         >
           <h2 className="mb-4 text-center">Log In to PennyWeek</h2>
+          {toast.show && (
+            <motion.div
+              className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${
+                toast.isError ? 'text-bg-danger' : 'text-bg-success'
+              }`}
+              role="alert"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="d-flex">
+                <div className="toast-body">{toast.message}</div>
+                <button
+                  type="button"
+                  className="btn-close me-2 m-auto"
+                  onClick={() => setToast({ show: false, message: "", isError: false })}
+                  aria-label="Close"
+                ></button>
+              </div>
+            </motion.div>
+          )}
           <form className="needs-validation" noValidate onSubmit={handleSubmit}>
             <div className="mb-3 position-relative">
               <div className="input-group">
@@ -95,7 +125,7 @@ function Login() {
                   <FaLock color="#00A3E0" />
                 </span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   className={`form-control ${
                     validated && !formData.password ? "is-invalid" : ""
                   }`}
@@ -107,6 +137,13 @@ function Login() {
                   required
                   aria-label="Password"
                 />
+                <span className="input-group-text password-toggle">
+                  <i
+                    className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}
+                    onClick={togglePasswordVisibility}
+                    style={{ cursor: "pointer", color: "#00A3E0" }}
+                  ></i>
+                </span>
                 <div className="invalid-feedback">Please enter your password.</div>
               </div>
             </div>
@@ -130,26 +167,6 @@ function Login() {
             </div>
           </form>
         </motion.div>
-      </div>
-
-      {/* Toast Notification */}
-      <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
-          showToast ? "show" : ""
-        }`}
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        <div className="d-flex">
-          <div className="toast-body">{toastMessage}</div>
-          <button
-            type="button"
-            className="btn-close me-2 m-auto"
-            onClick={() => setShowToast(false)}
-            aria-label="Close"
-          ></button>
-        </div>
       </div>
     </div>
   );

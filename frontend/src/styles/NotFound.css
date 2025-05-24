@@ -39,7 +39,7 @@
 }
 
 .btn-primary-modern {
-  background: linear-gradient(135deg, #00A3E0 0%, #005B99 100%);
+  background:  #00A3E0;
   border: none;
   color: #F4F9FC;
   font-weight: 600;
@@ -49,7 +49,8 @@
 }
 
 .btn-primary-modern:hover {
-  background: linear-gradient(135deg, #005B99 0%, #003366 100%);
+  background:  #005B99;
+  color: #F4F9FC;
 }
 
 @media (max-width: 767px) {

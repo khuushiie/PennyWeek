@@ -8,25 +8,22 @@ function PreferencesSettings() {
   const { isLoggedIn, user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    theme: "light",
     defaultCurrency: "USD",
-    notifications: true,
+    emailNotifications: true,
   });
   const [showToast, setShowToast] = useState(false);
-  const [error, setError] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
-  // Initialize formData when user is loaded
   useEffect(() => {
     if (user?.preferences) {
       setFormData({
-        theme: user.preferences.theme || "light",
         defaultCurrency: user.preferences.defaultCurrency || "USD",
-        notifications: user.preferences.notifications ?? true,
+        emailNotifications: user.preferences.emailNotifications ?? true,
       });
     }
   }, [user]);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!isLoggedIn) {
       console.log("User not logged in, redirecting to /login");
@@ -34,7 +31,6 @@ function PreferencesSettings() {
     }
   }, [isLoggedIn, navigate]);
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -43,18 +39,19 @@ function PreferencesSettings() {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateUser({ preferences: formData });
+      await updateUser({ preferences: formData }, false);
       console.log("Preferences updated successfully");
+      setToastMessage("Preferences updated successfully!");
+      setIsError(false);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
-      setError("");
     } catch (err) {
-      console.error("Update preferences error:", err);
-      setError(err.message || "Failed to update preferences.");
+      console.error("Update preferences error:", err.message);
+      setToastMessage(err.message || "Failed to update preferences");
+      setIsError(true);
       setShowToast(true);
     }
   };
@@ -84,45 +81,7 @@ function PreferencesSettings() {
             </ol>
           </nav>
           <h2 className="section-heading mb-5">Preferences</h2>
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="form-label">Theme</label>
-              <div className="theme-preview mb-3">
-                <div className="form-check form-check-inline theme-option-wrapper">
-                  <input
-                    className="form-check-input custom-radio"
-                    type="radio"
-                    name="theme"
-                    id="light"
-                    value="light"
-                    checked={formData.theme === "light"}
-                    onChange={handleInputChange}
-                  />
-                  <label className="form-check-label theme-option light" htmlFor="light">
-                    Light
-                  </label>
-                </div>
-                <div className="form-check form-check-inline theme-option-wrapper">
-                  <input
-                    className="form-check-input custom-radio"
-                    type="radio"
-                    name="theme"
-                    id="dark"
-                    value="dark"
-                    checked={formData.theme === "dark"}
-                    onChange={handleInputChange}
-                  />
-                  <label className="form-check-label theme-option dark" htmlFor="dark">
-                    Dark
-                  </label>
-                </div>
-              </div>
-            </div>
             <div className="mb-4">
               <label htmlFor="defaultCurrency" className="form-label">
                 Default Currency
@@ -141,17 +100,17 @@ function PreferencesSettings() {
               </select>
             </div>
             <div className="mb-4">
-              <label className="form-label">Notifications</label>
+              <label className="form-label">Email Notifications</label>
               <div className="form-check form-switch">
                 <input
                   className="form-check-input"
                   type="checkbox"
-                  id="notifications"
-                  name="notifications"
-                  checked={formData.notifications}
+                  id="emailNotifications"
+                  name="emailNotifications"
+                  checked={formData.emailNotifications}
                   onChange={handleInputChange}
                 />
-                <label className="form-check-label" htmlFor="notifications">
+                <label className="form-check-label" htmlFor="emailNotifications">
                   Receive email notifications
                 </label>
               </div>
@@ -172,19 +131,16 @@ function PreferencesSettings() {
           </form>
         </motion.div>
       </div>
-
       <div
-        className={`toast align-items-center text-dark border-0 position-fixed top-0 end-0 m-3 ${
+        className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${
           showToast ? "show" : ""
-        }`}
+        } ${isError ? "text-bg-danger" : "text-bg-success"}`}
         role="alert"
         aria-live="assertive"
         aria-atomic="true"
       >
         <div className="d-flex">
-          <div className="toast-body">
-            {error ? error : "Preferences updated successfully!"}
-          </div>
+          <div className="toast-body">{toastMessage}</div>
           <button
             type="button"
             className="btn-close me-2 m-auto"

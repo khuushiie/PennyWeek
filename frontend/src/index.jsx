@@ -20,6 +20,8 @@ import Register from './pages/Register';
 import AboutUs from './pages/AboutUs';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
+import EditTransaction from './pages/EditTransaction';
+import RecurringTransactionForm from './pages/RecurringTransactionForm';
 
 function ProtectedRoute({ children }) {
   const { isLoggedIn } = useAuth();
@@ -70,6 +72,9 @@ createRoot(document.getElementById('root')).render(
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/edit-transaction/:id" element={<EditTransaction />} />
+            <Route path="/recurring-transaction" element={<RecurringTransactionForm />} />
+            <Route path="/recurring-transaction/:id" element={<RecurringTransactionForm />} />
           </Routes>
           <Footer />
         </TransactionProvider>

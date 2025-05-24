@@ -21,20 +21,16 @@ router.post('/register', async (req, res) => {
     }
 
     // Check for existing user
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Create user
+    // Create user (password hashing handled by pre('save') middleware)
     const user = new User({
       name,
-      email,
-      password: hashedPassword,
+      email: email.toLowerCase(),
+      password, // Raw password, middleware will hash it
       preferences: {
         theme: 'light',
         defaultCurrency: 'USD',
@@ -65,33 +61,20 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Validate input
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+      return res.status(400).send({ message: 'Email and password are required' });
     }
-
-    // Find user
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(400).send({ message: 'Invalid credentials' });
     }
-
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    // Generate JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', {
       expiresIn: '1h',
     });
-
-    res.json({ token });
+    res.send({ token, user: { _id: user._id, name: user.name, email: user.email, photo: user.photo } });
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).send({ message: err.message });
   }
 });
 

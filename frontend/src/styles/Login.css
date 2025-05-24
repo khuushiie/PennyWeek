@@ -95,3 +95,8 @@
     font-size: 0.9rem;
   }
 }
+
+.password-toggle {
+  background: transparent;
+  border: none;
+}
