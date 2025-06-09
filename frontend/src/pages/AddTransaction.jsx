@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { useTransactions } from '../TransactionContext';
 import '../styles/AddTransaction.css';
-import { API_BASE_URL } from '../api';
+import { API_BASE_URL } from '../api.js';
 
 const AddTransaction = () => {
   const { user } = useAuth();

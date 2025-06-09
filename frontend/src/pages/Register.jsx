@@ -5,7 +5,7 @@ import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
 import "../styles/Register.css";
-import { API_BASE_URL } from '../api'; 
+import { API_BASE_URL } from '../api.js'; 
 
 function Register() {
   const [validated, setValidated] = useState(false);

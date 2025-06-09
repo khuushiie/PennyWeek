@@ -5,7 +5,7 @@ import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuth } from "../AuthContext";
 import axios from "axios";
 import "../styles/Login.css";
-import { API_BASE_URL } from '../api';
+import { API_BASE_URL } from '../api.js';
 
 function Login() {
   const { isLoggedIn, login } = useAuth();

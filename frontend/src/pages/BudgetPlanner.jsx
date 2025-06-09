@@ -3,7 +3,7 @@ import { useTransactions } from '../TransactionContext';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import '../styles/BudgetPlanner.css';
-import { API_BASE_URL } from './api';
+import { API_BASE_URL } from './api.js';
 
 const BudgetPlanner = () => {
   const { transactions } = useTransactions();
