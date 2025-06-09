@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
 import axios from "axios";
 import "../styles/PrivacySettings.css";
-import { API_BASE_URL } from '../api'; 
+import { API_BASE_URL } from '../api.js'; 
 
 function PrivacySettings() {
   const { isLoggedIn, user, updateUser, logout } = useAuth();

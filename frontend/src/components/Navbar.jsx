@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 import "../styles/Navbar.css";
-import { API_BASE_URL } from '../api';
+import { API_BASE_URL } from '../api.js';
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
