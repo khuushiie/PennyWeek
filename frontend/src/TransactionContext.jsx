@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
-import { API_BASE_URL } from './api'; 
+import { API_BASE_URL } from './api';
 
 const TransactionContext = createContext();
 
