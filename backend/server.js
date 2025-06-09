@@ -1,30 +1,30 @@
-require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const transactionRoutes = require('./routes/transactions');
-const budgetRoutes = require('./routes/budgets');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const path = require('path');
 
+dotenv.config();
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
+app.use(cors());
 app.use(express.json());
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/uploads', express.static('uploads'));
-app.use('/api/budgets', budgetRoutes);
+app.use('/Uploads', express.static(path.join(__dirname, 'Uploads')));
 
-mongoose.connect('mongodb://localhost/pennyweek')
+console.log('server.js: Connecting to MongoDB');
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .catch((err) => {
+    console.error('MongoDB connection error:', err.message);
+    process.exit(1);
+  });
+
+console.log('server.js: Mounting routes');
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/transactions', require('./routes/transactions'));
+app.use('/api/budgets', require('./routes/budgets'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

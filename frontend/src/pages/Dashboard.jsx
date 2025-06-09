@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { useTransactions } from '../TransactionContext';
-import { Line, Pie, Bar } from 'react-chartjs-2'; // Add Pie and Bar
+import { Line, Pie, Bar } from 'react-chartjs-2';
 import BudgetAlerts from '../components/BudgetAlerts';
 import {
   Chart as ChartJS,
@@ -15,8 +15,8 @@ import {
   Tooltip,
   Legend,
   Filler,
-  ArcElement, // Add for Pie
-  BarElement, // Add for Bar
+  ArcElement,
+  BarElement,
 } from 'chart.js';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -31,8 +31,8 @@ ChartJS.register(
   Tooltip,
   Legend,
   Filler,
-  ArcElement, // Register for Pie chart
-  BarElement // Register for Bar chart
+  ArcElement,
+  BarElement
 );
 
 function Dashboard() {
@@ -58,9 +58,7 @@ function Dashboard() {
 
   const currencies = [
     { code: 'USD', symbol: '$' },
-    { code: 'EUR', symbol: '€' },
     { code: 'INR', symbol: '₹' },
-    { code: 'GBP', symbol: '£' },
   ];
 
   const categories = [
@@ -105,7 +103,7 @@ function Dashboard() {
     return { totalSpent, totalSaved };
   }, [transactions]);
 
-  // Chart Data (last 30 days) - Existing
+  // Chart Data (last 30 days)
   const chartData = useMemo(() => {
     const endDate = new Date();
     const startDate = new Date();
@@ -156,7 +154,7 @@ function Dashboard() {
     };
   }, [transactions, user?.preferences?.defaultCurrency]);
 
-  // Insights Chart Data - New
+  // Insights Chart Data
   const pieChartData = useMemo(() => {
     return {
       labels: insights?.categoryTotals ? Object.keys(insights.categoryTotals) : [],
@@ -187,7 +185,7 @@ function Dashboard() {
       : [];
   }, [insights, user?.preferences?.defaultCurrency]);
 
-  // PDF Generation - Existing
+  // PDF Generation
   const generatePDF = () => {
     const doc = new jsPDF();
     const dateStr = new Date().toISOString().split('T')[0];
@@ -247,7 +245,7 @@ function Dashboard() {
     doc.save(`pennyweek_report_${dateStr}.pdf`);
   };
 
-  // Export to CSV - Existing
+  // Export to CSV
   const exportToCSV = () => {
     const headers = ['Date', 'Amount', 'Currency', 'Category', 'Type', 'Note', 'Recurring'];
     const rows = sortedTransactions.map((t) => [
@@ -271,7 +269,7 @@ function Dashboard() {
     document.body.removeChild(link);
   };
 
-  // Sorting and Filtering - Existing
+  // Sorting and Filtering
   const handleSort = (key) => {
     const direction = sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
     setSortConfig({ key, direction });
@@ -463,46 +461,56 @@ function Dashboard() {
               <p className="text-center">No transactions available. Add a transaction to see your summary.</p>
             ) : (
               <>
-                <div className="row text-center">
-                  {Object.entries(summary).map(([currency, data]) => (
-                    <div key={currency} className="col-md-4 mb-4">
-                      <h4>{currency}</h4>
-                      <div className="summary-item">
-                        <h5 className="summary-label">Income</h5>
-                        <p className="summary-value income">
+                <motion.table
+                  className="summary-table"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                  <thead>
+                    <tr>
+                      <th>Currency</th>
+                      <th>Income</th>
+                      <th>Expenses</th>
+                      <th>Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(summary).map(([currency, data]) => (
+                      <tr key={currency}>
+                        <td>{currency}</td>
+                        <td className="summary-value income">
                           {currencies.find((c) => c.code === currency)?.symbol}
                           {data.income.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="summary-item">
-                        <h5 className="summary-label">Expenses</h5>
-                        <p className="summary-value expense">
+                        </td>
+                        <td className="summary-value expense">
                           {currencies.find((c) => c.code === currency)?.symbol}
                           {data.expenses.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="summary-item">
-                        <h5 className="summary-label">Balance</h5>
-                        <p className={`summary-value ${data.balance >= 0 ? 'income' : 'expense'}`}>
+                        </td>
+                        <td className={`summary-value ${data.balance >= 0 ? 'income' : 'expense'}`}>
                           {currencies.find((c) => c.code === currency)?.symbol}
                           {data.balance.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="col-md-12 mt-4">
-                    <div className="summary-item">
-                      <h5 className="summary-label">Total Spent (All Currencies)</h5>
-                      <p className="summary-value expense">₹{totalSummary.totalSpent.toFixed(2)}</p>
-                    </div>
-                    <div className="summary-item">
-                      <h5 className="summary-label">Total Saved (All Currencies)</h5>
-                      <p className={`summary-value ${totalSummary.totalSaved >= 0 ? 'income' : 'expense'}`}>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colSpan="2">Total Spent (All Currencies)</td>
+                      <td className="summary-value expense">
+                        ₹{totalSummary.totalSpent.toFixed(2)}
+                      </td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td colSpan="2">Total Saved (All Currencies)</td>
+                      <td className={`summary-value ${totalSummary.totalSaved >= 0 ? 'income' : 'expense'}`}>
                         ₹{totalSummary.totalSaved.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                      </td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </motion.table>
                 <div className="action-buttons mt-4 d-flex justify-content-center flex-wrap gap-2">
                   <Link to="/add-transaction" className="btn btn-primary">Add Transaction</Link>
                   <Link to="/recurring-transaction" className="btn btn-primary">Add Recurring</Link>
@@ -685,7 +693,7 @@ function Dashboard() {
           </motion.div>
         )}
 
-        {/* Insights Tab - New */}
+        {/* Insights Tab */}
         {activeTab === 'insights' && (
           <motion.div
             className="transaction-table-card p-4 mb-5"

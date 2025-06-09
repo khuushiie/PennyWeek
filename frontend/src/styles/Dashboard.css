@@ -1,4 +1,3 @@
-/* Existing styles retained, only budget-related styles updated */
 .dashboard-page {
   background-color: #f4f9fc;
   min-height: 100vh;
@@ -20,6 +19,48 @@
   color: #1a3c5a;
   padding: 30px;
   margin-bottom: 30px;
+}
+
+/* Summary Table */
+.summary-table {
+  width: 80%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: "Poppins", sans-serif;
+  color: #1a3c5a;
+  border-collapse: collapse;
+}
+
+.summary-table th {
+  background: #1a3c5a;
+  color: #f4f9fc;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-align: center;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.summary-table td {
+  padding: 12px 20px;
+  font-size: 1rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.summary-table tbody tr:hover {
+  background: rgba(0, 163, 224, 0.1);
+}
+
+.summary-table tfoot td {
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px 20px;
+  text-align: center;
 }
 
 /* Headings and Text */
@@ -90,8 +131,6 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 20px;
   margin-bottom: 20px;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 /* Input and Select Styles */
@@ -127,17 +166,20 @@
 }
 
 /* Button Styles */
-.btn-primary {
-  background-color: #00a3e0;
-  border: none;
+.btn {
+  border-radius: 8px !important; /* Ensure rectangular buttons */
   padding: 12px 24px;
-  color: #f4f9fc;
-  border-radius: 8px;
   font-family: "Poppins", sans-serif;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn-primary {
+  background-color: #00a3e0;
+  border: none;
+  color: #f4f9fc;
 }
 
 .btn-primary:hover {
@@ -147,13 +189,7 @@
 .btn-success {
   background-color: #28a745;
   border: none;
-  padding: 12px 24px;
   color: #f4f9fc;
-  border-radius: 8px;
-  font-family: "Poppins", sans-serif;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
 }
 
 .btn-success:hover {
@@ -163,13 +199,7 @@
 .btn-danger {
   background-color: #ff6b6b;
   border: none;
-  padding: 12px 24px;
   color: #f4f9fc;
-  border-radius: 8px;
-  font-family: "Poppins", sans-serif;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
 }
 
 .btn-danger:hover {
@@ -179,19 +209,26 @@
 .btn-secondary {
   background-color: #6c757d;
   border: none;
-  padding: 12px 24px;
   color: #f4f9fc;
-  border-radius: 8px;
-  font-family: "Poppins", sans-serif;
-  font-size: 16px;
-  cursor: pointer;
 }
 
-.btn-sm.btn-primary {
-  padding: 6px 12px;
-  font-size: 14px;
+.btn-secondary:hover {
+  background-color: #5a6268;
 }
 
+.btn-close {
+  border-radius: 8px !important; /* Ensure toast close button is rectangular */
+  background-color: #6c757d;
+  color: #f4f9fc;
+  padding: 4px 8px;
+  opacity: 1;
+}
+
+.btn-close:hover {
+  background-color: #5a6268;
+}
+
+.btn-sm.btn-primary,
 .btn-sm.btn-danger {
   padding: 6px 12px;
   font-size: 14px;
@@ -210,7 +247,7 @@
   color: #f4f9fc;
   cursor: pointer;
   padding: 12px;
-  user-select: none;
+  user-select: noneorians;
 }
 
 .table th:hover {
@@ -252,7 +289,7 @@
 
 .modal-content {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
+  border-radius: 10px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -269,6 +306,7 @@
 }
 
 .modal-content p {
+  color: #6c757d;
   margin-bottom: 20px;
 }
 
@@ -280,9 +318,8 @@
 
 /* Budget Form Styles */
 .budget-form {
-  background: rgba(26, 60, 90, 0.95); /* #1A3C5A */
+  background: rgba(26, 60, 90, 0.95);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border-radius: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   padding: 2rem;
@@ -385,6 +422,16 @@
 
 /* Responsive Adjustments */
 @media (max-width: 992px) {
+  .summary-table {
+    width: 95%;
+  }
+
+  .summary-table th,
+  .summary-table td {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+
   .search-filter-container,
   .budget-form {
     padding: 1.5rem;
@@ -398,6 +445,16 @@
 }
 
 @media (max-width: 576px) {
+  .summary-table {
+    width: 100%;
+  }
+
+  .summary-table th,
+  .summary-table td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
   .budget-form {
     padding: 1rem;
     max-width: 90%;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaUser, FaEnvelope, FaLock, FaGoogle } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
 import "../styles/Register.css";
@@ -53,11 +53,13 @@ function Register() {
     }
 
     if (formData.password !== formData.confirmPassword) {
+      console.log("Register: Passwords do not match");
       setToast({ show: true, message: "Passwords do not match", isError: true });
       return;
     }
 
     if (!formData.name || !formData.email || !formData.password) {
+      console.log("Register: Missing required fields");
       setToast({ show: true, message: "Please provide name, email, and password", isError: true });
       return;
     }
@@ -75,6 +77,7 @@ function Register() {
         }
       );
       console.log("Register: Registration response:", response.data);
+      console.log("Register: Attempting login with:", { email, password });
       await login(email, password);
       setToast({ show: true, message: "Registration successful! Redirecting to dashboard...", isError: false });
       setIsSignedUp(true);
@@ -90,11 +93,6 @@ function Register() {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    console.log("Register: Google Sign Up clicked");
-    setToast({ show: true, message: "Google Sign Up not implemented yet", isError: true });
-  };
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -108,7 +106,7 @@ function Register() {
       <div className="container d-flex justify-content-center align-items-center min-vh-100">
         <motion.div
           className="register-card p-4"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0.3, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
@@ -127,17 +125,6 @@ function Register() {
             </div>
           ) : (
             <>
-              <button
-                className="btn btn-outline-primary w-100 mb-3"
-                onClick={handleGoogleSignUp}
-              >
-                <FaGoogle className="me-2" /> Sign up with Google
-              </button>
-
-              <div className="text-center mb-3">
-                <span className="or-divider">or</span>
-              </div>
-
               <form
                 className="needs-validation"
                 noValidate
@@ -323,3 +310,4 @@ function Register() {
 }
 
 export default Register;
+

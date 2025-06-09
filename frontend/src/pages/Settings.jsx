@@ -2,14 +2,13 @@ import React, { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
-import { FaUser, FaLock, FaCog, FaBell, FaUserShield } from "react-icons/fa";
+import { FaUser, FaLock, FaCog, FaUserShield } from "react-icons/fa";
 import "../styles/Settings.css";
 
 function Settings() {
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/login");
@@ -25,21 +24,15 @@ function Settings() {
     },
     {
       title: "Privacy & Security",
-      description: "Manage password, 2FA, and data privacy.",
+      description: "Manage password and data privacy.",
       icon: <FaLock size={32} />,
       path: "/settings/privacy",
     },
     {
       title: "Preferences",
-      description: "Customize currency, and notifications.",
+      description: "Customize currency and theme.",
       icon: <FaCog size={32} />,
       path: "/settings/preferences",
-    },
-    {
-      title: "Notifications",
-      description: "Set up email, SMS, and push notifications.",
-      icon: <FaBell size={32} />,
-      path: "/settings/notifications",
     },
     {
       title: "Account",

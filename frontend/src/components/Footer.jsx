@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FaTwitter, FaLinkedin, FaArrowUp } from "react-icons/fa";
+import { FaLinkedin, FaArrowUp } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import "../styles/Footer.css";
 
 function Footer() {
@@ -31,10 +32,11 @@ function Footer() {
               variants={iconVariants}
               initial="hidden"
               animate="visible"
-              aria-label="Twitter"
+              aria-label="X (Twitter)"
             >
-              <FaTwitter />
+              <FaXTwitter />
             </motion.a>
+
             <motion.a
               href="https://linkedin.com"
               target="_blank"
