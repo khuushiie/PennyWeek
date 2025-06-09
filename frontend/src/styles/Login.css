@@ -100,3 +100,21 @@
   background: transparent;
   border: none;
 }
+
+.alert-danger {
+  background-color: rgba(255, 107, 107, 0.2); /* #FF6B6B */
+  color: #1a3c5a;
+  border: 1px solid #ff6b6b;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.alert-success {
+  background-color: rgba(0, 163, 224, 0.2);
+  color: #1a3c5a;
+  border: 1px solid #00a3e0;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+}

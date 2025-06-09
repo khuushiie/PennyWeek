@@ -1,30 +1,38 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+console.log('User.js: Defining User schema');
+
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, unique: true, trim: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true
+  },
   password: { type: String, required: true },
-  photo: { type: String },
+  photo: { type: String, default: null },
   preferences: {
-    theme: { type: String, default: 'light' },
-    defaultCurrency: { type: String, default: 'USD' },
-    notifications: { type: Boolean, default: true },
-    emailNotifications: { type: Boolean, default: true },
-    smsNotifications: { type: Boolean, default: false },
-    pushNotifications: { type: Boolean, default: false },
-    notificationFrequency: { type: String, default: 'immediate' },
-    dataSharing: { type: Boolean, default: false },
-    twoFactor: { type: Boolean, default: false },
+    type: Object,
+    default: {
+      theme: 'light',
+      defaultCurrency: 'USD',
+      dataSharing: false,
+    },
   },
 });
 
 userSchema.pre('save', async function (next) {
   const user = this;
-  if (user.isModified('password')) {
+  if (user.isModified('password') && user.password) {
+    console.log('UserSchema: Hashing password for', user.email);
     user.password = await bcrypt.hash(user.password, 10);
   }
   next();
 });
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+console.log('User.js: User model created');
+module.exports = User;

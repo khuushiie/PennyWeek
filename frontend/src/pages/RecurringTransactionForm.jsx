@@ -18,6 +18,7 @@ function RecurringTransactionForm() {
         startDate: new Date().toISOString().split('T')[0],
     });
     const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
 
     useEffect(() => {
         if (id) {
@@ -42,16 +43,45 @@ function RecurringTransactionForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('RecurringTransactionForm: Submitting', { id, formData });
+        setError(null);
+        setSuccess(null);
+
+        if (!formData.amount || formData.amount <= 0) {
+            setError('Amount must be positive');
+            setTimeout(() => setError(null), 3000);
+            return;
+        }
+        if (!formData.category) {
+            setError('Please select a category');
+            setTimeout(() => setError(null), 3000);
+            return;
+        }
+        if (!formData.startDate) {
+            setError('Please select a start date');
+            setTimeout(() => setError(null), 3000);
+            return;
+        }
+
         try {
             if (id) {
                 await updateRecurringTransaction(id, formData);
+                setSuccess('Recurring transaction updated successfully!');
+                console.log('RecurringTransactionForm: Update success');
             } else {
                 await addRecurringTransaction(formData);
+                setSuccess('Recurring transaction added successfully!');
+                console.log('RecurringTransactionForm: Add success');
             }
-            navigate('/dashboard');
+            setTimeout(() => {
+                setSuccess(null);
+                navigate('/dashboard');
+            }, 2000);
         } catch (err) {
-            console.error('RecurringTransactionForm: Submit error:', err.message);
-            setError(err.message || 'Failed to save recurring transaction');
+            const errorMsg = err.message || 'Failed to save recurring transaction';
+            setError(errorMsg);
+            console.error('RecurringTransactionForm: Error', errorMsg);
+            setTimeout(() => setError(null), 3000);
         }
     };
 
@@ -64,7 +94,26 @@ function RecurringTransactionForm() {
         >
             <div className="recurring-form-box">
                 <h2>{id ? 'Edit Recurring Transaction' : 'Add Recurring Transaction'}</h2>
-                {error && <div className="error-message">{error}</div>}
+                {error && (
+                    <motion.div
+                        className="alert alert-danger"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        {error}
+                    </motion.div>
+                )}
+                {success && (
+                    <motion.div
+                        className="alert alert-success"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        {success}
+                    </motion.div>
+                )}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="amount">Amount (₹)</label>

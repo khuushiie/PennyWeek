@@ -10,17 +10,18 @@ function ProfileSettings() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    photo: "",
+    photo: null, // Changed to null to store File object
   });
   const [validated, setValidated] = useState(false);
-  const [toast, setToast] = useState({ show: false, message: "", isError: false });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     if (user) {
       setFormData({
         name: user.name || "",
         email: user.email || "",
-        photo: user.photo || "",
+        photo: null, // Reset photo to null
       });
     }
   }, [user]);
@@ -39,9 +40,11 @@ function ProfileSettings() {
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
+    console.log('ProfileSettings: Photo upload attempted');
     if (!file) {
-      console.log("ProfileSettings: No file selected");
-      setToast({ show: true, message: "Please select an image file", isError: true });
+      setError("Please select an image file");
+      console.log('ProfileSettings: No file selected');
+      setTimeout(() => setError(null), 3000);
       return;
     }
 
@@ -53,19 +56,15 @@ function ProfileSettings() {
         throw new Error("Please select an image file");
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        console.log("ProfileSettings: File read successfully");
-        setFormData((prev) => ({ ...prev, photo: reader.result }));
-        setToast({ show: false, message: "", isError: false });
-      };
-      reader.onerror = () => {
-        throw new Error("Failed to read file");
-      };
-      reader.readAsDataURL(file);
+      setFormData((prev) => ({ ...prev, photo: file })); // Store File object
+      setSuccess("Photo uploaded successfully");
+      console.log('ProfileSettings: Photo upload success');
+      setTimeout(() => setSuccess(null), 2000);
     } catch (err) {
-      console.error("ProfileSettings: Photo upload error:", err.message);
-      setToast({ show: true, message: err.message, isError: true });
+      const errorMsg = err.message || "Photo upload failed";
+      setError(errorMsg);
+      console.error('ProfileSettings: Photo upload error', errorMsg);
+      setTimeout(() => setError(null), 3000);
     }
   };
 
@@ -73,27 +72,37 @@ function ProfileSettings() {
     e.preventDefault();
     const form = e.target;
     setValidated(true);
+    setError(null);
+    setSuccess(null);
+    console.log('ProfileSettings: Submitting', {
+      name: formData.name,
+      email: formData.email,
+      photo: formData.photo ? '[File object]' : null
+    });
 
     if (!form.checkValidity()) {
-      console.log("ProfileSettings: Form validation failed");
+      setError("Please fill in all required fields");
+      console.log('ProfileSettings: Invalid form');
+      setTimeout(() => setError(null), 3000);
       return;
     }
 
     try {
-      console.log("ProfileSettings: Submitting form data:", formData);
       await updateUser({
         name: formData.name,
         email: formData.email,
         photo: formData.photo || undefined,
       });
-      setToast({ show: true, message: "Profile updated successfully", isError: false });
+      setSuccess("Profile updated successfully");
       setValidated(false);
+      console.log('ProfileSettings: Update success');
+      setTimeout(() => setSuccess(null), 2000);
     } catch (err) {
-      console.error("ProfileSettings: Update user error:", err.message);
-      setToast({ show: true, message: err.message || "Failed to update profile", isError: true });
+      const errorMsg = err.message || "Failed to update profile";
+      setError(errorMsg);
+      console.error('ProfileSettings: Update error', errorMsg);
+      setTimeout(() => setError(null), 3000);
     }
-
-    setTimeout(() => setToast({ show: false, message: "", isError: false }), 3000);
   };
 
   if (!user) {
@@ -121,18 +130,31 @@ function ProfileSettings() {
             </ol>
           </nav>
           <h2 className="section-heading mb-4">Profile Settings</h2>
-          <form
-            className="needs-validation"
-            noValidate
-            onSubmit={handleSubmit}
-          >
+          {error && (
+            <motion.div
+              className="alert alert-danger"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {error}
+            </motion.div>
+          )}
+          {success && (
+            <motion.div
+              className="alert alert-success"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {success}
+            </motion.div>
+          )}
+          <form className="needs-validation" noValidate onSubmit={handleSubmit}>
             <div className="row g-4">
               <div className="col-md-4 text-center text-md-start">
                 <motion.img
-                  src={
-                    formData.photo ||
-                    "https://ui-avatars.com/api/?name=User&size=150"
-                  }
+                  src={formData.photo ? URL.createObjectURL(formData.photo) : user.photo || "https://ui-avatars.com/api/?name=User&size=150"} // Use object URL for preview
                   alt="Profile"
                   className="profile-photo rounded-circle mb-3"
                   whileHover={{ scale: 1.05 }}
@@ -154,49 +176,35 @@ function ProfileSettings() {
               </div>
               <div className="col-md-8">
                 <div className="mb-4">
-                  <label htmlFor="name" className="form-label">
-                    Name
-                  </label>
+                  <label htmlFor="name" className="form-label">Name</label>
                   <input
                     type="text"
-                    className={`form-control modern-input ${
-                      validated && !formData.name ? "is-invalid" : ""
-                    }`}
+                    className={`form-control modern-input ${validated && !formData.name ? "is-invalid" : ""}`}
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
                     required
                   />
-                  <div className="invalid-feedback">
-                    Please enter your name.
-                  </div>
+                  <div className="invalid-feedback">Please enter your name.</div>
                 </div>
                 <div className="mb-4">
-                  <label htmlFor="email" className="form-label">
-                    Email
-                  </label>
+                  <label htmlFor="email" className="form-label">Email</label>
                   <input
                     type="email"
-                    className={`form-control modern-input ${
-                      validated && !formData.email ? "is-invalid" : ""
-                    }`}
+                    className={`form-control modern-input ${validated && !formData.email ? "is-invalid" : ""}`}
                     id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
                   />
-                  <div className="invalid-feedback">
-                    Please enter a valid email.
-                  </div>
+                  <div className="invalid-feedback">Please enter a valid email.</div>
                 </div>
               </div>
             </div>
             <div className="text-end mt-4">
-              <Link to="/settings" className="btn btn-outline-modern me-2">
-                Back
-              </Link>
+              <Link to="/settings" className="btn btn-outline-modern me-2">Back</Link>
               <motion.button
                 type="submit"
                 className="btn btn-primary-modern"
@@ -209,26 +217,6 @@ function ProfileSettings() {
           </form>
         </motion.div>
       </div>
-
-      {toast.show && (
-        <motion.div
-          className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${toast.isError ? 'text-bg-danger' : 'text-bg-success'}`}
-          role="alert"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="d-flex">
-            <div className="toast-body">{toast.message}</div>
-            <button
-              type="button"
-              className="btn-close me-2 m-auto"
-              onClick={() => setToast({ show: false, message: "", isError: false })}
-              aria-label="Close"
-            ></button>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 }

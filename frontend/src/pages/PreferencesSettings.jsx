@@ -94,26 +94,8 @@ function PreferencesSettings() {
                 onChange={handleInputChange}
               >
                 <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
                 <option value="INR">INR (₹)</option>
-                <option value="GBP">GBP (£)</option>
               </select>
-            </div>
-            <div className="mb-4">
-              <label className="form-label">Email Notifications</label>
-              <div className="form-check form-switch">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="emailNotifications"
-                  name="emailNotifications"
-                  checked={formData.emailNotifications}
-                  onChange={handleInputChange}
-                />
-                <label className="form-check-label" htmlFor="emailNotifications">
-                  Receive email notifications
-                </label>
-              </div>
             </div>
             <div className="text-end">
               <Link to="/settings" className="btn btn-outline-modern me-2">

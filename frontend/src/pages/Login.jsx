@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuth } from "../AuthContext";
+import axios from "axios";
 import "../styles/Login.css";
 
 function Login() {
@@ -13,12 +14,13 @@ function Login() {
     password: "",
   });
   const [validated, setValidated] = useState(false);
-  const [toast, setToast] = useState({ show: false, message: "", isError: false });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    console.log('Login: useEffect - isLoggedIn:', isLoggedIn);
     if (isLoggedIn) {
-      console.log("Login: User already logged in, redirecting to /dashboard");
       navigate("/dashboard");
     }
   }, [isLoggedIn, navigate]);
@@ -26,39 +28,52 @@ function Login() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log(`Login: Input change - ${name}:`, value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const form = e.target;
     setValidated(true);
-    setToast({ show: false, message: "", isError: false });
-
-    if (!form.checkValidity()) {
-      console.log("Login: Form validation failed");
-      e.stopPropagation();
-      return;
-    }
+    setError(null);
+    setSuccess(null);
+    console.log('Login: Submitting', { 
+      email: formData.email, 
+      password: formData.password ? '[filled]' : '[empty]' 
+    });
 
     if (!formData.email || !formData.password) {
-      setToast({ show: true, message: "Email and password are required", isError: true });
+      setError("Please fill in all required fields");
+      console.log('Login: Missing required fields');
+      setTimeout(() => setError(null), 3000);
       return;
     }
 
     try {
-      console.log("Login: Submitting form data:", formData);
-      await login(formData.email, formData.password);
-      setToast({ show: true, message: "Login successful", isError: false });
+      const response = await axios.post("http://localhost:5000/api/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      }, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      console.log('Login: /auth/login response', {
+        token: response.data.token ? '[present]' : '[missing]',
+        user: response.data.user?.email
+      });
+      localStorage.setItem('token', response.data.token);
+      await login(response.data.token, response.data.user);
+      setSuccess("Login successful");
       setFormData({ email: "", password: "" });
       setValidated(false);
+      console.log('Login: Success');
       setTimeout(() => {
-        setToast({ show: false, message: "", isError: false });
+        setSuccess(null);
         navigate("/dashboard");
       }, 2000);
     } catch (err) {
-      console.error("Login: Error:", err.response?.data || err.message);
-      setToast({ show: true, message: err.message || "Invalid credentials", isError: true });
-      setTimeout(() => setToast({ show: false, message: "", isError: false }), 3000);
+      const errorMsg = err.response?.data?.message || "Invalid credentials";
+      setError(errorMsg);
+      console.error('Login: Error', errorMsg, err.response?.data);
+      setTimeout(() => setError(null), 3000);
     }
   };
 
@@ -76,25 +91,24 @@ function Login() {
           transition={{ duration: 0.8 }}
         >
           <h2 className="mb-4 text-center">Log In to PennyWeek</h2>
-          {toast.show && (
+          {error && (
             <motion.div
-              className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${
-                toast.isError ? 'text-bg-danger' : 'text-bg-success'
-              }`}
-              role="alert"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
+              className="alert alert-danger"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
             >
-              <div className="d-flex">
-                <div className="toast-body">{toast.message}</div>
-                <button
-                  type="button"
-                  className="btn-close me-2 m-auto"
-                  onClick={() => setToast({ show: false, message: "", isError: false })}
-                  aria-label="Close"
-                ></button>
-              </div>
+              {error}
+            </motion.div>
+          )}
+          {success && (
+            <motion.div
+              className="alert alert-success"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {success}
             </motion.div>
           )}
           <form className="needs-validation" noValidate onSubmit={handleSubmit}>
@@ -105,9 +119,7 @@ function Login() {
                 </span>
                 <input
                   type="email"
-                  className={`form-control ${
-                    validated && !formData.email ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${validated && !formData.email ? "is-invalid" : ""}`}
                   id="email"
                   name="email"
                   value={formData.email}
@@ -126,9 +138,7 @@ function Login() {
                 </span>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`form-control ${
-                    validated && !formData.password ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${validated && !formData.password ? "is-invalid" : ""}`}
                   id="password"
                   name="password"
                   value={formData.password}

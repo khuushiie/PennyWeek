@@ -213,8 +213,6 @@ const AddTransaction = () => {
             >
               <option value="INR">INR (₹)</option>
               <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="GBP">GBP (£)</option>
             </select>
           </div>
           <div className="col-md-6">
