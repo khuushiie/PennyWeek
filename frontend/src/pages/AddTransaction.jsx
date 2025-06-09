@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { useTransactions } from '../TransactionContext';
 import '../styles/AddTransaction.css';
+import { API_BASE_URL } from '../api';
 
 const AddTransaction = () => {
   const { user } = useAuth();
@@ -29,7 +30,7 @@ const AddTransaction = () => {
     if (formData.note) {
       console.log('Fetching suggestion for note:', formData.note);
       axios
-        .post('http://localhost:5000/api/transactions/suggest-category', { note: formData.note }, {
+        .post(`${API_BASE_URL}/api/transactions/suggest-category`, { note: formData.note }, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
         .then(response => {

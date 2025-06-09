@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 import "../styles/Navbar.css";
+import { API_BASE_URL } from '../api';
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
@@ -20,7 +21,7 @@ function Navbar() {
   const photoUrl = user?.photo
     ? user.photo.startsWith('http')
       ? user.photo
-      : `http://localhost:5000${user.photo}`
+      : `${API_BASE_URL}${user.photo}`
     : null;
 
   return (

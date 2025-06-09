@@ -5,6 +5,7 @@ import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
 import "../styles/Register.css";
+import { API_BASE_URL } from '../api'; 
 
 function Register() {
   const [validated, setValidated] = useState(false);
@@ -68,7 +69,7 @@ function Register() {
       const { name, email, password } = formData;
       console.log("Register: Registering user:", { name, email, password });
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${API_BASE_URL}/api/auth/register`,
         { name, email, password },
         {
           headers: {

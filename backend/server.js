@@ -7,7 +7,10 @@ const path = require('path');
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://penny-week.vercel.app'],
+  credentials: true
+}));
 app.use(express.json());
 app.use('/Uploads', express.static(path.join(__dirname, 'Uploads')));
 

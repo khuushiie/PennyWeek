@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from './api'; 
 
 const TransactionContext = createContext();
 
@@ -19,7 +20,7 @@ export function TransactionProvider({ children }) {
     const token = localStorage.getItem('token');
     if (!token || !isLoggedIn) return;
     try {
-      const response = await axios.get('http://localhost:5000/api/transactions/insights', {
+      const response = await axios.get(`${API_BASE_URL}/api/transactions/insights`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setInsights(response.data);
@@ -36,7 +37,7 @@ export function TransactionProvider({ children }) {
     const token = localStorage.getItem('token');
     if (!token || !isLoggedIn) return;
     try {
-      const response = await axios.get('http://localhost:5000/api/transactions/budget/recommend', {
+      const response = await axios.get(`${API_BASE_URL}/api/transactions/budget/recommend`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log('TransactionContext: Fetched recommendations:', response.data);
@@ -64,13 +65,13 @@ export function TransactionProvider({ children }) {
     try {
       setLoading(true);
       const [transRes, recurRes, budgetRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/transactions', {
+        axios.get(`${API_BASE_URL}/api/transactions`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get('http://localhost:5000/api/transactions/recurring', {
+        axios.get(`${API_BASE_URL}/api/transactions/recurring`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get('http://localhost:5000/api/budgets', {
+        axios.get( `${API_BASE_URL}/api/budgets`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -103,7 +104,7 @@ export function TransactionProvider({ children }) {
     if (!token) throw new Error('No token available');
     try {
       console.log('TransactionContext: Adding transaction:', transaction);
-      const response = await axios.post('http://localhost:5000/api/transactions', transaction, {
+      const response = await axios.post(`${API_BASE_URL}/api/transactions`, transaction, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTransactions([...transactions, response.data]);
@@ -122,7 +123,7 @@ export function TransactionProvider({ children }) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No token available');
     try {
-      const response = await axios.put(`http://localhost:5000/api/transactions/${id}`, transaction, {
+      const response = await axios.put(`${API_BASE_URL}/api/transactions/${id}`, transaction, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTransactions(transactions.map((t) => (t._id === id ? response.data : t)));
@@ -141,7 +142,7 @@ export function TransactionProvider({ children }) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No token available');
     try {
-      await axios.delete(`http://localhost:5000/api/transactions/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/transactions/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTransactions(transactions.filter((t) => t._id !== id));
@@ -159,7 +160,7 @@ export function TransactionProvider({ children }) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No token available');
     try {
-      const response = await axios.post('http://localhost:5000/api/transactions/recurring', transaction, {
+      const response = await axios.post(`${API_BASE_URL}/api/transactions/recurring`, transaction, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRecurringTransactions([...recurringTransactions, response.data]);
@@ -177,7 +178,7 @@ export function TransactionProvider({ children }) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No token available');
     try {
-      const response = await axios.put(`http://localhost:5000/api/transactions/recurring/${id}`, transaction, {
+      const response = await axios.put(`${API_BASE_URL}/api/transactions/recurring/${id}`, transaction, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRecurringTransactions(recurringTransactions.map((rt) => (rt._id === id ? response.data : rt)));
@@ -196,7 +197,7 @@ export function TransactionProvider({ children }) {
     if (!token) throw new Error('No token available');
     try {
       console.log('TransactionContext: Deleting recurring transaction ID:', id);
-      await axios.delete(`http://localhost:5000/api/transactions/recurring/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/transactions/recurring/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRecurringTransactions(recurringTransactions.filter((rt) => rt._id !== id));
@@ -213,7 +214,7 @@ export function TransactionProvider({ children }) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No token available');
     try {
-      const response = await axios.post('http://localhost:5000/api/budgets', budget, {
+      const response = await axios.post(`${API_BASE_URL}/api/budgets`, budget, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBudgets([...budgets, response.data]);

@@ -3,6 +3,7 @@ import { useTransactions } from '../TransactionContext';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import '../styles/BudgetPlanner.css';
+import { API_BASE_URL } from './api';
 
 const BudgetPlanner = () => {
   const { transactions } = useTransactions();
@@ -20,7 +21,7 @@ const BudgetPlanner = () => {
     const fetchBudgets = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:5000/api/budgets', {
+        const response = await axios.get( `${API_BASE_URL}/api/budgets`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         console.log('Fetched budgets:', response.data); // Debug
@@ -49,7 +50,7 @@ const BudgetPlanner = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/budgets', newBudget, {
+      const response = await axios.post( `${API_BASE_URL}/api/budgets`, newBudget, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setBudgets([...budgets, response.data]);

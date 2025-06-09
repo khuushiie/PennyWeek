@@ -5,6 +5,7 @@ import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuth } from "../AuthContext";
 import axios from "axios";
 import "../styles/Login.css";
+import { API_BASE_URL } from '../api';
 
 function Login() {
   const { isLoggedIn, login } = useAuth();
@@ -49,7 +50,7 @@ function Login() {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email: formData.email,
         password: formData.password,
       }, {

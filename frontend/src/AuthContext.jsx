@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from './api';
 
 const AuthContext = createContext();
 
@@ -23,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   const verifyToken = async (token) => {
     try {
       console.log('AuthContext: Verifying token');
-      const response = await axios.get('http://localhost:5000/api/users/me', {
+      const response = await axios.get(`${API_BASE_URL}/api/users/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -81,7 +82,7 @@ export const AuthProvider = ({ children }) => {
         }
       });
 
-      const response = await axios.put('http://localhost:5000/api/users/me', formData, {
+      const response = await axios.put(`${API_BASE_URL}/api/users/me`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',

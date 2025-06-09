@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { useTransactions } from '../TransactionContext';
 import '../styles/EditTransaction.css';
+import { API_BASE_URL } from '../api';
 
 const EditTransaction = () => {
   const { user } = useAuth();
@@ -48,7 +49,7 @@ const EditTransaction = () => {
   useEffect(() => {
     if (formData.note) {
       console.log('EditTransaction: Fetching suggestion for note:', formData.note);
-      fetch('http://localhost:5000/api/transactions/suggest-category', {
+      fetch(`${API_BASE_URL}/api/transactions/suggest-category`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

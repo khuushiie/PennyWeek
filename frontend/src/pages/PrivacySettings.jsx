@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../AuthContext";
 import axios from "axios";
 import "../styles/PrivacySettings.css";
+import { API_BASE_URL } from '../api'; 
 
 function PrivacySettings() {
   const { isLoggedIn, user, updateUser, logout } = useAuth();
@@ -80,7 +81,7 @@ function PrivacySettings() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:5000/api/users/change-password',
+        `${API_BASE_URL}/api/users/change-password`,
         { oldPassword: passwordForm.oldPassword, newPassword: passwordForm.newPassword },
         {
           headers: {
@@ -149,7 +150,7 @@ function PrivacySettings() {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete('http://localhost:5000/api/users/delete', {
+      await axios.delete(`${API_BASE_URL}/api/users/delete`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
