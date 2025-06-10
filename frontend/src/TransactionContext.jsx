@@ -93,7 +93,7 @@ export function TransactionProvider({ children }) {
     if (isLoggedIn && user) {
       fetchTransactions();
       fetchRecommendations();
-      fetchInsights(); // Fetch insights on initial load
+      fetchInsights(); 
     } else {
       setLoading(false);
     }
@@ -109,7 +109,7 @@ export function TransactionProvider({ children }) {
       });
       setTransactions([...transactions, response.data]);
       await fetchRecommendations();
-      await fetchInsights(); // Refresh insights
+      await fetchInsights(); 
       showToast('Transaction added successfully');
       return response.data;
     } catch (err) {
@@ -128,7 +128,7 @@ export function TransactionProvider({ children }) {
       });
       setTransactions(transactions.map((t) => (t._id === id ? response.data : t)));
       await fetchRecommendations();
-      await fetchInsights(); // Refresh insights
+      await fetchInsights();
       showToast('Transaction updated successfully');
       return response.data;
     } catch (err) {
