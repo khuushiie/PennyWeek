@@ -12,7 +12,6 @@ import AddTransaction from './pages/AddTransaction';
 import Settings from './pages/Settings';
 import ProfileSettings from './pages/ProfileSettings';
 import PrivacySettings from './pages/PrivacySettings';
-import PreferencesSettings from './pages/PreferencesSettings';
 import AccountSettings from './pages/AccountSettings';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -42,7 +41,6 @@ createRoot(document.getElementById('root')).render(
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/settings/profile" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
               <Route path="/settings/privacy" element={<ProtectedRoute><PrivacySettings /></ProtectedRoute>} />
-              <Route path="/settings/preferences" element={<ProtectedRoute><PreferencesSettings /></ProtectedRoute>} />
               <Route path="/settings/account" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/login" element={<Login />} />
