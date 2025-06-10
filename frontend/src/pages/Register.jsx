@@ -5,7 +5,7 @@ import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
 import "../styles/Register.css";
-import { API_BASE_URL } from '../api.js'; 
+import { API_BASE_URL } from "../api.js";
 
 function Register() {
   const [validated, setValidated] = useState(false);
@@ -28,10 +28,7 @@ function Register() {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData({
-      ...formData,
-      [id]: value,
-    });
+    setFormData({ ...formData, [id]: value });
   };
 
   const getPasswordStrength = (password) => {
@@ -43,64 +40,66 @@ function Register() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
-
     setValidated(true);
     setToast({ show: false, message: "", isError: false });
 
     if (form.checkValidity() === false) {
-      console.log("Register: Form validation failed");
       event.stopPropagation();
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      console.log("Register: Passwords do not match");
       setToast({ show: true, message: "Passwords do not match", isError: true });
       return;
     }
 
     if (!formData.name || !formData.email || !formData.password) {
-      console.log("Register: Missing required fields");
-      setToast({ show: true, message: "Please provide name, email, and password", isError: true });
+      setToast({ show: true, message: "Please fill all required fields", isError: true });
       return;
     }
 
     try {
       const { name, email, password } = formData;
-      console.log("Register: Registering user:", { name, email, password });
-      const response = await axios.post(
+
+      // Step 1: Register user
+      const registerRes = await axios.post(
         `${API_BASE_URL}/api/auth/register`,
         { name, email, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
-      console.log("Register: Registration response:", response.data);
-      console.log("Register: Attempting login with:", { email, password });
-      await login(email, password);
-      setToast({ show: true, message: "Registration successful! Redirecting to dashboard...", isError: false });
+
+      // Step 2: Login user
+      const loginRes = await axios.post(
+        `${API_BASE_URL}/api/auth/login`,
+        { email, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      const { token, user } = loginRes.data;
+      await login(token, user);
+
+      // Success toast and redirect
+      setToast({
+        show: true,
+        message: "Registration successful! Redirecting to dashboard...",
+        isError: false,
+      });
+
       setIsSignedUp(true);
       setFormData({ name: "", email: "", password: "", confirmPassword: "" });
       setValidated(false);
+
       setTimeout(() => {
         navigate("/dashboard");
       }, 2000);
     } catch (err) {
-      console.error("Register: Registration error:", err.response?.data || err.message);
-      const errorMessage = err.response?.data?.message || "Registration failed";
-      setToast({ show: true, message: errorMessage, isError: true });
+      const message = err.response?.data?.message || "Registration failed";
+      setToast({ show: true, message, isError: true });
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
   return (
     <div className="register-page">
@@ -111,89 +110,65 @@ function Register() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="mb-4 text-center">
-            Join PennyWeek and Master Your Money!
-          </h2>
+          <h2 className="mb-4 text-center">Join PennyWeek and Master Your Money!</h2>
 
           {isSignedUp ? (
             <div className="text-center">
               <p className="already-signed-up">
                 You’re already signed up!{" "}
-                <Link to="/login" className="login-link">
-                  Log In here
-                </Link>
+                <Link to="/login" className="login-link">Log In here</Link>
               </p>
             </div>
           ) : (
             <>
-              <form
-                className="needs-validation"
-                noValidate
-                onSubmit={handleSubmit}
-              >
+              <form className="needs-validation" noValidate onSubmit={handleSubmit}>
+                {/* Name */}
                 <div className="mb-3 position-relative">
                   <div className="input-group">
-                    <span className="input-group-text">
-                      <FaUser color="#00A3E0" />
-                    </span>
+                    <span className="input-group-text"><FaUser color="#00A3E0" /></span>
                     <input
                       type="text"
-                      className={`form-control ${
-                        validated && !formData.name ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${validated && !formData.name ? "is-invalid" : ""}`}
                       id="name"
                       placeholder="Enter name"
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      aria-label="Name"
                     />
-                    <div className="invalid-feedback">
-                      Please provide a valid name.
-                    </div>
+                    <div className="invalid-feedback">Please provide a valid name.</div>
                   </div>
                 </div>
 
+                {/* Email */}
                 <div className="mb-3 position-relative">
                   <div className="input-group">
-                    <span className="input-group-text">
-                      <FaEnvelope color="#00A3E0" />
-                    </span>
+                    <span className="input-group-text"><FaEnvelope color="#00A3E0" /></span>
                     <input
                       type="email"
-                      className={`form-control ${
-                        validated && !formData.email ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${validated && !formData.email ? "is-invalid" : ""}`}
                       id="email"
                       placeholder="Enter email"
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      aria-label="Email"
                     />
-                    <div className="invalid-feedback">
-                      Please provide a valid email address.
-                    </div>
+                    <div className="invalid-feedback">Please provide a valid email address.</div>
                   </div>
                 </div>
 
+                {/* Password */}
                 <div className="mb-3 position-relative">
                   <div className="input-group">
-                    <span className="input-group-text">
-                      <FaLock color="#00A3E0" />
-                    </span>
+                    <span className="input-group-text"><FaLock color="#00A3E0" /></span>
                     <input
                       type={showPassword ? "text" : "password"}
-                      className={`form-control ${
-                        validated && !formData.password ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${validated && !formData.password ? "is-invalid" : ""}`}
                       id="password"
                       placeholder="Enter password"
                       value={formData.password}
                       onChange={handleInputChange}
                       required
                       minLength="6"
-                      aria-label="Password"
                     />
                     <span className="input-group-text password-toggle">
                       <i
@@ -202,9 +177,7 @@ function Register() {
                         style={{ cursor: "pointer", color: "#00A3E0" }}
                       ></i>
                     </span>
-                    <div className="invalid-feedback">
-                      Password must be at least 6 characters.
-                    </div>
+                    <div className="invalid-feedback">Password must be at least 6 characters.</div>
                   </div>
                   {formData.password && (
                     <div className="mt-2">
@@ -224,24 +197,20 @@ function Register() {
                   )}
                 </div>
 
+                {/* Confirm Password */}
                 <div className="mb-3 position-relative">
                   <div className="input-group">
-                    <span className="input-group-text">
-                      <FaLock color="#00A3E0" />
-                    </span>
+                    <span className="input-group-text"><FaLock color="#00A3E0" /></span>
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       className={`form-control ${
-                        validated && formData.confirmPassword !== formData.password
-                          ? "is-invalid"
-                          : ""
+                        validated && formData.confirmPassword !== formData.password ? "is-invalid" : ""
                       }`}
                       id="confirmPassword"
                       placeholder="Confirm password"
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       required
-                      aria-label="Confirm Password"
                     />
                     <span className="input-group-text password-toggle">
                       <i
@@ -266,9 +235,7 @@ function Register() {
 
               <div className="mt-3 text-center">
                 Already have an account?{" "}
-                <Link to="/login" className="login-link">
-                  Login here
-                </Link>
+                <Link to="/login" className="login-link">Login here</Link>
               </div>
             </>
           )}
@@ -278,7 +245,7 @@ function Register() {
       {toast.show && (
         <motion.div
           className={`toast align-items-center border-0 position-fixed top-0 end-0 m-3 ${
-            toast.isError ? 'text-bg-danger' : 'text-bg-success'
+            toast.isError ? "text-bg-danger" : "text-bg-success"
           }`}
           role="alert"
           initial={{ opacity: 0, x: 20 }}
@@ -288,9 +255,9 @@ function Register() {
           <div className="d-flex">
             <div className="toast-body">
               {toast.message}
-              {toast.message === 'Email already registered' && (
+              {toast.message === "Email already registered" && (
                 <>
-                  {' '}
+                  {" "}
                   <Link to="/login" className="text-white text-decoration-underline">
                     Log in instead
                   </Link>
@@ -311,4 +278,3 @@ function Register() {
 }
 
 export default Register;
-
