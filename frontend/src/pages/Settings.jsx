@@ -29,12 +29,6 @@ function Settings() {
       path: "/settings/privacy",
     },
     {
-      title: "Preferences",
-      description: "Customize currency and theme.",
-      icon: <FaCog size={32} />,
-      path: "/settings/preferences",
-    },
-    {
       title: "Account",
       description: "Logout or delete your account.",
       icon: <FaUserShield size={32} />,
